@@ -7,46 +7,43 @@ import logging
 
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
+from tqdm import tqdm
 
 
 def parse_args():
     parser = ArgumentParser(description="Scrape Oscar data")
 
     parser.add_argument(
-        "base_url",
+        "--base_url",
         default="https://www.oscars.org/oscars/ceremonies",
         type=str,
         help="Base URL to the Oscar ceremony winners page",
     )
 
     parser.add_argument(
-        "years_interval",
+        "--years_interval",
         default=None,
-        type=tuple,
-        help="Years interval to scrape, (for example, (2010, 2020))",
+        nargs=2,
+        type=int,
+        help="Years interval to scrape (inclusive)",
     )
 
     parser.add_argument(
-        "oscar_categories",
+        "--oscar_categories",
         default=None,
-        type=list[str],
+        nargs="+",
+        type=str,
         help="Oscar categories to scrape, if None, scrape all",
     ),
 
     parser.add_argument(
-        "output_file",
+        "--output_file",
         default="oscar_winners.csv",
         type=str,
         help="Output file to save the scraped data",
     )
 
     args = parser.parse_args()
-
-    # Check the arguments are valid
-    if args.years_interval is not None and len(args.years_interval) != 2:
-        raise ValueError(
-            "The years_interval argument should be a tuple with two elements"
-        )
 
     return args
 
@@ -147,6 +144,35 @@ def scrape_year(
 
 
 def main():
+    args = parse_args()
+
+    # Create the driver
+    driver = create_driver()
+
+    base_url = args.base_url
+    categories = args.oscar_categories
+    years = range(args.years_interval[0], args.years_interval[1] + 1)
+    output_file = args.output_file
+
+    dfs = []
+
+    loading_bar = tqdm(total=len(years), desc="Scraping oscars")
+
+    for year in years:
+        df = scrape_year(driver, base_url, year, categories)
+        dfs.append(df)
+
+        loading_bar.update(1)
+
+    loading_bar.close()
+    driver.quit()
+
+    # Concatenate the dataframes
+    final_df = pd.concat(dfs).reset_index(drop=True)
+
+    # Save the data
+    final_df.to_csv(output_file, index=False)
+
     pass
 
 
