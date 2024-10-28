@@ -119,6 +119,33 @@ def get_page_source(
     return driver.page_source
 
 
+def scrape_year(
+    driver: webdriver.Firefox,
+    base_url: str,
+    year: int,
+    oscar_categories: list | None = None,
+) -> pd.DataFrame:
+    page_source = get_page_source(driver, base_url, year)
+    oscar_winners = scrape_winners(page_source, oscar_categories)
+
+    MOVIE_NAME_COLUMN = "movie_name"
+    OSCAR_CATEGORY_COLUMN = "oscar_category"
+    YEAR_COLUMN = "year"
+
+    data = []
+
+    for category, winner in oscar_winners.items():
+        data.append(
+            {
+                MOVIE_NAME_COLUMN: winner,
+                OSCAR_CATEGORY_COLUMN: category,
+                YEAR_COLUMN: year,
+            }
+        )
+
+    return pd.DataFrame(data)
+
+
 def main():
     pass
 
