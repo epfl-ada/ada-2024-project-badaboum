@@ -99,5 +99,17 @@ def scrape_winners(
     return oscar_winners
 
 
+def create_driver() -> webdriver.Firefox:
+    options = webdriver.FirefoxOptions()
+    options.add_argument("--headless")
+
+    driver = webdriver.Firefox(options=options)
+    return driver
+
+
+def main():
+    pass
+
+
 if __name__ == "__main__":
     main()
