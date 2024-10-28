@@ -23,22 +23,15 @@ def main():
         "years_interval",
         default=None,
         type=tuple,
-        help="Years interval to scrape",
+        help="Years interval to scrape, (for example, (2010, 2020))",
     )
 
     parser.add_argument(
-        "movie_oscar_categories",
+        "oscar_categories",
         default=None,
         type=list,
-        help="Oscar given to a movie categories to scrape (ex: Best picture, ...)",
+        help="Oscar categories to scrape, if None, scrape all",
     ),
-
-    parser.add_argument(
-        "person_oscar_categories",
-        default=None,
-        type=list,
-        help="Oscar given to a person categories to scrape, (ex: Best actor, ...)",
-    )
 
     parser.add_argument(
         "output_file",
