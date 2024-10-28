@@ -107,6 +107,17 @@ def create_driver() -> webdriver.Firefox:
     return driver
 
 
+def get_page_source(
+    driver: webdriver.Firefox,
+    base_url: str,
+    year: int,
+) -> str:
+    url = f"{base_url}/{year}"
+    driver.get(url)
+
+    return driver.page_source
+
+
 def main():
     pass
 
