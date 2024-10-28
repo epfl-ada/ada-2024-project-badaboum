@@ -9,7 +9,7 @@ def main():
 
     parser.add_argument(
         "base_url",
-        default="https://www.oscars.org/oscars/ceremonies/",
+        default="https://www.oscars.org/oscars/ceremonies",
         type=str,
         help="Base URL to the Oscar ceremony winners page",
     )
@@ -22,11 +22,18 @@ def main():
     )
 
     parser.add_argument(
-        "oscar_categories",
+        "movie_oscar_categories",
         default=None,
         type=list,
-        help="Oscar categories to scrape",
+        help="Oscar given to a movie categories to scrape (ex: Best picture, ...)",
     ),
+
+    parser.add_argument(
+        "person_oscar_categories",
+        default=None,
+        type=list,
+        help="Oscar given to a person categories to scrape, (ex: Best actor, ...)",
+    )
 
     parser.add_argument(
         "output_file",
