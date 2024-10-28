@@ -9,7 +9,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 
 
-def main():
+def parse_args():
     parser = ArgumentParser(description="Scrape Oscar data")
 
     parser.add_argument(
@@ -29,7 +29,7 @@ def main():
     parser.add_argument(
         "oscar_categories",
         default=None,
-        type=list,
+        type=list[str],
         help="Oscar categories to scrape, if None, scrape all",
     ),
 
@@ -40,7 +40,15 @@ def main():
         help="Output file to save the scraped data",
     )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    # Check the arguments are valid
+    if args.years_interval is not None and len(args.years_interval) != 2:
+        raise ValueError(
+            "The years_interval argument should be a tuple with two elements"
+        )
+
+    return args
 
 
 def parse_movie_winner(
