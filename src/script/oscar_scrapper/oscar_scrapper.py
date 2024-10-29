@@ -1,13 +1,11 @@
 import pandas as pd
-import requests
 from bs4 import BeautifulSoup
 from argparse import ArgumentParser
-from typing import Literal
 import logging
 
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
 from tqdm import tqdm
+import re
 
 
 def parse_args():
@@ -54,7 +52,35 @@ def parse_movie_winner(
 ) -> str:
     winner_movie_soup = oscar_soup.find("div", class_=winner_movie_class)
 
-    return winner_movie_soup.text.lower() if winner_movie_soup is not None else None
+    winner_raw = (
+        winner_movie_soup.text.lower() if winner_movie_soup is not None else None
+    )
+    if winner_raw is None:
+        return None
+
+    # Remove new lines
+    winner = winner_raw.replace("\n", "")
+    return winner
+
+
+# For some categories, the oscars page does not follow the same structure
+# as the other categories, so we need to handle them separately
+SPECIAL_CATEGORIES = ["international feature film"]
+
+
+def parse_movie_winner_special_category(
+    oscar_soup: BeautifulSoup,
+    category: str,
+) -> str:
+    if category == SPECIAL_CATEGORIES[0]:
+        # Here the usual winner field contains the corresponding country
+        # of the movie, and the winner is in the entity field (it is reversed)
+        return parse_movie_winner(
+            oscar_soup, winner_movie_class="field--name-field-award-entities"
+        )
+
+    else:
+        raise ValueError(f"Category {category} is not a special category")
 
 
 def parse_oscar_category(
@@ -87,7 +113,11 @@ def scrape_winners(
             continue
 
         # Try to parse the winner
-        winner = parse_movie_winner(oscar_soup)
+        if category in SPECIAL_CATEGORIES:
+            winner = parse_movie_winner_special_category(oscar_soup, category)
+        else:
+            winner = parse_movie_winner(oscar_soup)
+
         if winner is None:
             logging.warning("Unable to parse the winner for the category: %s", category)
             continue
