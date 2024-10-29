@@ -5,7 +5,6 @@ import logging
 
 from selenium import webdriver
 from tqdm import tqdm
-import re
 
 
 def parse_args():
@@ -63,6 +62,14 @@ def parse_movie_winner(
     return winner
 
 
+def parse_oscar_category(
+    oscar_soup: BeautifulSoup,
+    category_class="field--name-field-award-category-oscars",
+) -> str:
+    category_soup = oscar_soup.find("div", class_=category_class)
+    return category_soup.text.lower()
+
+
 # For some categories, the oscars page does not follow the same structure
 # as the other categories, so we need to handle them separately
 SPECIAL_CATEGORIES = ["international feature film"]
@@ -83,12 +90,13 @@ def parse_movie_winner_special_category(
         raise ValueError(f"Category {category} is not a special category")
 
 
-def parse_oscar_category(
-    oscar_soup: BeautifulSoup,
-    category_class="field--name-field-award-category-oscars",
-) -> str:
-    category_soup = oscar_soup.find("div", class_=category_class)
-    return category_soup.text.lower()
+"""
+  Get the oscar winners from the oscars page
+
+  Args:
+    page_source: str: The page source of the oscars page
+    oscar_categories: list: The oscar categories to scrape, if None, scrape all
+"""
 
 
 def scrape_winners(
