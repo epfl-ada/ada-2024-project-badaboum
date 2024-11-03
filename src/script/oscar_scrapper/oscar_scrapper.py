@@ -90,6 +90,21 @@ def parse_oscar_category(
 SPECIAL_CATEGORIES = ["international feature film"]
 
 
+def parse_movie_winner_nominnes_special_category(
+    oscar_soup: BeautifulSoup,
+    category: str,
+) -> str:
+    if category == SPECIAL_CATEGORIES[0]:
+        # Here the usual winner field contains the corresponding country
+        # of the movie, and the winner is in the entity field (it is reversed)
+        return parse_movie_winner_nominees(
+            oscar_soup, movie_name_class="field--name-field-award-entities"
+        )
+
+    else:
+        raise ValueError(f"Category {category} is not a special category")
+
+
 def parse_movie_winner_special_category(
     oscar_soup: BeautifulSoup,
     category: str,
