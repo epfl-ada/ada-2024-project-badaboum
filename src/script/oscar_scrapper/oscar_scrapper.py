@@ -45,6 +45,21 @@ def parse_args():
     return args
 
 
+def parse_movie_winner_nominees(
+    oscar_soup: BeautifulSoup,
+    movie_name_class="field--name-field-award-film",
+) -> dict:
+    winner_nominnes_soup = oscar_soup.find_all("div", class_=movie_name_class)
+    if winner_nominnes_soup is None:
+        return None
+
+    # The first element is the winner, the rest are the nominees
+    winner = winner_nominnes_soup[0].text.lower()
+    nominees = [nominee.text.lower() for nominee in winner_nominnes_soup[1:]]
+
+    return {"winner": winner, "nominees": nominees}
+
+
 def parse_movie_winner(
     oscar_soup: BeautifulSoup,
     winner_movie_class="field--name-field-award-film",
