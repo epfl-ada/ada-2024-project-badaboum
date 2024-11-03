@@ -48,33 +48,20 @@ def parse_args():
 def parse_movie_winner_nominees(
     oscar_soup: BeautifulSoup,
     movie_name_class="field--name-field-award-film",
-) -> dict:
+):
     winner_nominnes_soup = oscar_soup.find_all("div", class_=movie_name_class)
-    if winner_nominnes_soup is None:
-        return None
+    if len(winner_nominnes_soup) == 0:
+        return None, None
 
     # The first element is the winner, the rest are the nominees
     winner = winner_nominnes_soup[0].text.lower()
     nominees = [nominee.text.lower() for nominee in winner_nominnes_soup[1:]]
 
-    return {"winner": winner, "nominees": nominees}
+    # Remove new lines characters
+    winner = winner.replace("\n", "")
+    nominees = [nominee.replace("\n", "") for nominee in nominees]
 
-
-def parse_movie_winner(
-    oscar_soup: BeautifulSoup,
-    winner_movie_class="field--name-field-award-film",
-) -> str:
-    winner_movie_soup = oscar_soup.find("div", class_=winner_movie_class)
-
-    winner_raw = (
-        winner_movie_soup.text.lower() if winner_movie_soup is not None else None
-    )
-    if winner_raw is None:
-        return None
-
-    # Remove new lines
-    winner = winner_raw.replace("\n", "")
-    return winner
+    return winner, nominees
 
 
 def parse_oscar_category(
@@ -90,10 +77,10 @@ def parse_oscar_category(
 SPECIAL_CATEGORIES = ["international feature film"]
 
 
-def parse_movie_winner_nominnes_special_category(
+def parse_movie_winner_nominees_special_category(
     oscar_soup: BeautifulSoup,
     category: str,
-) -> str:
+):
     if category == SPECIAL_CATEGORIES[0]:
         # Here the usual winner field contains the corresponding country
         # of the movie, and the winner is in the entity field (it is reversed)
@@ -105,23 +92,8 @@ def parse_movie_winner_nominnes_special_category(
         raise ValueError(f"Category {category} is not a special category")
 
 
-def parse_movie_winner_special_category(
-    oscar_soup: BeautifulSoup,
-    category: str,
-) -> str:
-    if category == SPECIAL_CATEGORIES[0]:
-        # Here the usual winner field contains the corresponding country
-        # of the movie, and the winner is in the entity field (it is reversed)
-        return parse_movie_winner(
-            oscar_soup, winner_movie_class="field--name-field-award-entities"
-        )
-
-    else:
-        raise ValueError(f"Category {category} is not a special category")
-
-
 """
-  Get the oscar winners from the oscars page
+  Get the oscar winners and nominees from the oscars page
 
   Args:
     page_source: str: The page source of the oscars page
@@ -129,7 +101,7 @@ def parse_movie_winner_special_category(
 """
 
 
-def scrape_winners(
+def scrape_winners_nominees(
     page_source: str,
     oscar_categories: list | None = None,
 ):
@@ -142,7 +114,8 @@ def scrape_winners(
         "div", class_="field__item", recursive=False
     )
 
-    oscar_winners = dict()
+    oscar_winners = []
+    oscar_nominees = []
     for oscar_soup in oscars_soup_list:
         category = parse_oscar_category(oscar_soup)
 
@@ -152,17 +125,21 @@ def scrape_winners(
 
         # Try to parse the winner
         if category in SPECIAL_CATEGORIES:
-            winner = parse_movie_winner_special_category(oscar_soup, category)
+            winner, nominees = parse_movie_winner_nominees_special_category(
+                oscar_soup, category
+            )
         else:
-            winner = parse_movie_winner(oscar_soup)
+            winner, nominees = parse_movie_winner_nominees(oscar_soup)
 
-        if winner is None:
+        if winner is None or nominees is None:
             logging.warning("Unable to parse the winner for the category: %s", category)
             continue
 
-        oscar_winners[category] = winner
+        oscar_winners.append((category, winner))
+        for nominee in nominees:
+            oscar_nominees.append((category, nominee))
 
-    return oscar_winners
+    return oscar_winners, oscar_nominees
 
 
 def create_driver() -> webdriver.Firefox:
@@ -191,20 +168,38 @@ def scrape_year(
     oscar_categories: list | None = None,
 ) -> pd.DataFrame:
     page_source = get_page_source(driver, base_url, year)
-    oscar_winners = scrape_winners(page_source, oscar_categories)
+    oscar_winners, oscar_nominees = scrape_winners_nominees(
+        page_source, oscar_categories
+    )
 
     MOVIE_NAME_COLUMN = "movie_name"
     OSCAR_CATEGORY_COLUMN = "oscar_category"
     YEAR_COLUMN = "year"
+    WINNER_COLUMN = (
+        "winner"  # True if the movie is the winner, False if it is a nominee
+    )
 
     data = []
 
-    for category, winner in oscar_winners.items():
+    # Add the winners
+    for category, winner in oscar_winners:
         data.append(
             {
                 MOVIE_NAME_COLUMN: winner,
                 OSCAR_CATEGORY_COLUMN: category,
                 YEAR_COLUMN: year,
+                WINNER_COLUMN: True,
+            }
+        )
+
+    # Add the nominees
+    for category, nominee in oscar_nominees:
+        data.append(
+            {
+                MOVIE_NAME_COLUMN: nominee,
+                OSCAR_CATEGORY_COLUMN: category,
+                YEAR_COLUMN: year,
+                WINNER_COLUMN: False,
             }
         )
 
