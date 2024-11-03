@@ -52,5 +52,16 @@ The directory structure of new project looks like this:
 
 ## Project Proposal
 
-[TODO: 1000 words max.]
+### Abstract
 
+### Research Questions
+
+### Dataset
+
+### Methods
+
+### Proposed timeline
+
+### Organization within the team
+
+### Questions for TAs (optional)
