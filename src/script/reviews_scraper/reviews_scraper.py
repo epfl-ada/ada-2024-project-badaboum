@@ -13,7 +13,7 @@ def parse_args():
 
     parser.add_argument(
         "--base_url",
-        default="https://www.imdb.com/title/tt15398776/reviews/?ref_=tt_ov_urv",
+        default="https://www.imdb.com/title/tt15398776/reviews/?ref_=tt_ov_urv&spoilers=EXCLUDE",
         type=str,
         help="Base URL to the IMDb reviews page",
     )
@@ -27,7 +27,7 @@ def parse_args():
 
     parser.add_argument(
         "--max_reviews",
-        default=2,
+        default=10,
         type=int,
         help="Maximum number of reviews to scrape",
     )
@@ -38,14 +38,17 @@ def parse_args():
 def parse_review(
         review_soup: BeautifulSoup
 ):
-    review_text = review_soup.find("div", class_="text show-more__control").get_text(strip=True)
-    rating_tag = review_soup.find("span", class_="rating-other-user-rating")
-    rating = rating_tag.find("span").text if rating_tag else None
-    review_title = review_soup.find("a", class_="title").get_text(strip=True)
+    review_text_raw = review_soup.find("div", class_="ipc-html-content-inner-div")
+    review_text = review_text_raw.get_text(strip=True) if review_text_raw else None
+
+    rating_raw = review_soup.find("span", class_="ipc-rating-star--rating")
+    rating = rating_raw.get_text(strip=True) if rating_raw else None
     
-    # Extracting the date of the review
-    date_tag = review_soup.find("span", class_="review-date")
-    review_date = date_tag.text if date_tag else None
+    review_title_tag = review_soup.find("h3", class_="ipc-title__text")
+    review_title = review_title_tag.text if review_title_tag else None
+    
+    review_date_raw = review_soup.find("li", class_="review-date")
+    review_date = review_date_raw.get_text(strip=True) if review_date_raw else None
 
     return review_title, review_text, rating, review_date
 
@@ -54,7 +57,7 @@ def scrape_reviews(
         max_reviews: int
 ):
     soup = BeautifulSoup(page_source, "html.parser")
-    review_soups = soup.find_all("div", class_="review-container")
+    review_soups = soup.find_all("article", class_="user-review-item")
 
     reviews_data = []
     for review_soup in review_soups:
