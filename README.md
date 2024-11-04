@@ -56,6 +56,12 @@ The directory structure of new project looks like this:
 This project explores the relationship between Oscar-winning films and audience ratings to assess the alignment (or divergence) between the Academy’s choices and public opinion. We will analyze IMDb ratings of Oscar winners, non-winning nominees, and box-office hits to uncover any trends or biases in Academy Awards decisions over time. Additionally, we aim to examine the influence of star power, genre, and the "Oscar bump" effect on ratings, as well as compare Oscars to other international film festivals. Through visualizations and statistical measures, this research will reveal patterns in Oscar nominations and wins, contributing to discussions on cultural and rating biases.
 
 ### Research Questions
+- Do Oscar-winning films generally have higher ratings compared to non-winning nominees and top box-office hits?
+- How do ratings of Oscar-winning films evolve over time—do they "age well" with audiences?
+- Is there a correlation between high-profile actors/directors and Oscar wins, regardless of ratings?
+- How does the Oscars’ preference align (or diverge) from that of other major international film festivals?
+- Does winning an Oscar lead to a measurable increase in ratings or review counts (i.e., the "Oscar bump")?
+- Are there discernible biases within Oscar winners, such as genre, nationality, or star power, that differ from audience preferences?
 
 ### Dataset
 
