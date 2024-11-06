@@ -1,6 +1,7 @@
 import pandas as pd
 from bs4 import BeautifulSoup
 from argparse import ArgumentParser
+from datetime import datetime
 import logging
 
 from selenium import webdriver
@@ -93,6 +94,30 @@ def parse_movie_winner_nominees_special_category(
 
 
 """
+  Get the oscar ceremony date from the oscars page
+
+  Args:
+    page_source: str: The page source of the oscars page
+"""
+
+
+def scrape_ceremony_date(
+    page_source: str,
+    ceremony_date_class="field--name-field-date-time",
+): 
+    # Parse the page
+    soup = BeautifulSoup(page_source, "html.parser")
+
+    # Get the date of the ceremony (in a string format) 
+    ceremony_date_string = soup.find("div", class_=ceremony_date_class).text.strip()
+
+    # Cast the date to a "datetime" object
+    ceremony_date = datetime.strptime(ceremony_date_string, "%A, %B %d, %Y")
+
+    return ceremony_date
+
+
+"""
   Get the oscar winners and nominees from the oscars page
 
   Args:
@@ -171,10 +196,12 @@ def scrape_year(
     oscar_winners, oscar_nominees = scrape_winners_nominees(
         page_source, oscar_categories
     )
+    ceremony_date = scrape_ceremony_date(page_source)
 
     MOVIE_NAME_COLUMN = "movie_name"
     OSCAR_CATEGORY_COLUMN = "oscar_category"
     YEAR_COLUMN = "year"
+    CEREMONY_DATE_COLUMN = "ceremony_date"
     WINNER_COLUMN = (
         "winner"  # True if the movie is the winner, False if it is a nominee
     )
@@ -188,6 +215,7 @@ def scrape_year(
                 MOVIE_NAME_COLUMN: winner,
                 OSCAR_CATEGORY_COLUMN: category,
                 YEAR_COLUMN: year,
+                CEREMONY_DATE_COLUMN: ceremony_date,
                 WINNER_COLUMN: True,
             }
         )
@@ -199,6 +227,7 @@ def scrape_year(
                 MOVIE_NAME_COLUMN: nominee,
                 OSCAR_CATEGORY_COLUMN: category,
                 YEAR_COLUMN: year,
+                CEREMONY_DATE_COLUMN: ceremony_date,
                 WINNER_COLUMN: False,
             }
         )
