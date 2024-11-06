@@ -103,13 +103,13 @@ def parse_movie_winner_nominees_special_category(
 
 def scrape_ceremony_date(
     page_source: str,
-    
+    ceremony_date_class="field--name-field-date-time",
 ): 
     # Parse the page
     soup = BeautifulSoup(page_source, "html.parser")
 
     # Get the date of the ceremony (in a string format) 
-    ceremony_date_string = soup.find("div", class_="field--name-field-date-time").text.strip()
+    ceremony_date_string = soup.find("div", class_=ceremony_date_class).text.strip()
 
     # Cast the date to a "datetime" object
     ceremony_date = datetime.strptime(ceremony_date_string, "%A, %B %d, %Y")
