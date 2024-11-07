@@ -58,6 +58,20 @@ def parse_args():
         help="Name of the column containing the release year",
     )
 
+    parser.add_argument(
+        "--wait_time_to_scroll_down",
+        default=2,
+        type=int,
+        help="Time to when scrolling down the page (in seconds)",
+    )
+
+    parser.add_argument(
+        "--wait_time_between_reviews_load",
+        default=2,
+        type=int,
+        help="Time to wait between reviews load (in seconds)",
+    )
+
     args = parser.parse_args()
     return args
 
