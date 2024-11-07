@@ -49,9 +49,13 @@ def main(args):
     logging.info("Reading the reviews")
     reviews_dfs = []
     for imdb_id in tqdm(input_df[args.imdb_id_column]):
-        reviews_df = pd.read_csv(
-            os.path.join(args.input_reviews_directory, f"{imdb_id}_reviews.csv")
-        )
+        try:
+            reviews_df = pd.read_csv(
+                os.path.join(args.input_reviews_directory, f"{imdb_id}_reviews.csv")
+            )
+        except FileNotFoundError:
+            logging.warning(f"Reviews for {imdb_id} not found")
+            continue
 
         reviews_dfs.append(reviews_df)
 
