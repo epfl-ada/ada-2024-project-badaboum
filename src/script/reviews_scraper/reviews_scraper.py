@@ -214,16 +214,20 @@ def main():
     # Scraping reviews for each movie
     for _, row in tqdm(dataset.iterrows(), total=dataset.shape[0]):
         imdb_id = row[args.imdb_id_column]
-        release_year = row[args.release_year_column]
+        release_year = (
+            row[args.release_year_column] if args.number_years_from_release else None
+        )
+
+        max_year = (
+            release_year + args.number_years_from_release if release_year else None
+        )
 
         # Get the URL
         url = get_url(imdb_id)
 
         # Scrape the reviews
         try:
-            reviews_data = scrape_all_reviews(
-                driver, url, max_year=release_year + args.number_years_from_release
-            )
+            reviews_data = scrape_all_reviews(driver, url, max_year=max_year)
         except Exception as e:
             logging.error(f"Error scraping reviews for {imdb_id}")
             continue
