@@ -18,6 +18,13 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--imdb_id_column",
+        default="imdb_id",
+        type=str,
+        help="Name of the column containing the IMDb ID",
+    )
+
+    parser.add_argument(
         "--input_reviews_directory",
         required=True,
         type=str,
@@ -41,7 +48,7 @@ def main(args):
 
     logging.info("Reading the reviews")
     reviews_dfs = []
-    for imdb_id in tqdm(input_df["imdb_id"]):
+    for imdb_id in tqdm(input_df[args.imdb_id_column]):
         reviews_df = pd.read_csv(
             os.path.join(args.input_reviews_directory, f"{imdb_id}_reviews.csv")
         )
