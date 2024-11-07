@@ -34,7 +34,7 @@ def main():
 
 
     # Dropping unimportant columns
-    df = df.drop(columns=['titleType', 'wiki mID', 'name', 'freebase mID', 'languages'])
+    df = df.drop(columns=['tconst','titleType', 'wiki mID', 'name', 'freebase mID', 'languages'])
 
     # Keeping only the categories of best picture and best motion picture 
     oscars_picture = df[(df['oscar_category'] == 'best motion picture') | (df['oscar_category'] == 'best picture')]
@@ -72,3 +72,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
