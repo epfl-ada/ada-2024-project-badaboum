@@ -28,7 +28,7 @@ def parse_args():
         "--number_years_from_release",
         default=None,
         type=int,
-        help="Stop loading reviews after this number of years from the release date (reviews beyond this date might still be scrapped), if None, all reviews are loaded and scraped",
+        help="Stop scrapping reviews after this number of years from the release date, if None, all reviews are loaded and scraped",
     )
 
     parser.add_argument(
@@ -164,7 +164,6 @@ def load_all_reviews(
     # Wait for all reviews to be loaded
     old_nb_reviews = -1
     current_nb_reviews = get_nb_loaded_reviews(driver.page_source)
-
     most_recent_review_year = get_most_recent_review_year(driver.page_source)
 
     # Load reviews until the number of loaded reviews does not change
@@ -173,6 +172,7 @@ def load_all_reviews(
         max_year == None or most_recent_review_year <= max_year
     ):
         old_nb_reviews = current_nb_reviews
+
         time.sleep(time_between_review_loading)
         current_nb_reviews = get_nb_loaded_reviews(driver.page_source)
         most_recent_review_year = get_most_recent_review_year(driver.page_source)
@@ -193,6 +193,10 @@ def scrape_all_reviews(
 
     # Scrape reviews
     reviews = scrape_reviews(driver.page_source)
+
+    # Remove reviews after the max year
+    if max_year:
+        reviews = [review for review in reviews if review["date"].year <= max_year]
 
     return reviews
 
@@ -222,6 +226,10 @@ def main():
             )
         except Exception as e:
             logging.error(f"Error scraping reviews for {imdb_id}")
+            continue
+
+        if len(reviews_data) == 0:
+            logging.info(f"No reviews scraped for {url}")
             continue
 
         # Create a DataFrame
