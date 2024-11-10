@@ -46,7 +46,7 @@ The directory structure of new project looks like this:
 ├── results.ipynb               <- a well-structured notebook showing the results
 │
 ├── .gitignore                  <- List of files ignored by git
-├── pip_requirements.txt        <- File for installing python dependencies
+├── requirements.txt        <- File for installing python dependencies
 └── README.md
 ```
 
