@@ -36,7 +36,6 @@ The directory structure of new project looks like this:
 ├── data                        <- Project data files
 │
 ├── src                         <- Source code
-│   ├── data                            <- Data directory
 │   ├── models                          <- Model directory
 │   ├── utils                           <- Utility directory
 │   ├── scripts                         <- Shell scripts
