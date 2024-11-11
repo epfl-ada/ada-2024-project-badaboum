@@ -210,12 +210,33 @@ def scrape_winners_nominees(
     return oscar_winners, oscar_nominees
 
 
+"""
+    Create a Firefox driver
+
+    Returns:
+        driver: webdriver.Firefox: The Firefox driver
+"""
+
+
 def create_driver() -> webdriver.Firefox:
     options = webdriver.FirefoxOptions()
     options.add_argument("--headless")
 
     driver = webdriver.Firefox(options=options)
     return driver
+
+
+"""
+    Get the page source of the oscars page for a given year
+
+    Args:
+        driver: webdriver.Firefox: The Firefox driver
+        base_url: str: The base URL of the oscars page
+        year: int: The year of the oscars page
+
+    Returns:
+        str: The page source of the oscars page
+"""
 
 
 def get_page_source(
@@ -227,6 +248,20 @@ def get_page_source(
     driver.get(url)
 
     return driver.page_source
+
+
+"""
+    Scrape the winners and nominees of the oscars for a given year
+
+    Args:
+        driver: webdriver.Firefox: The Firefox driver
+        base_url: str: The base URL of the oscars page
+        year: int: The year of the oscars page
+        oscar_categories: list: The oscar categories to scrape, if None, scrape all
+
+    Returns:
+        pd.DataFrame: The dataframe containing the scraped data
+"""
 
 
 def scrape_year(
@@ -276,6 +311,11 @@ def scrape_year(
         )
 
     return pd.DataFrame(data)
+
+
+"""
+    Main function to scrape the oscars data
+"""
 
 
 def main():
