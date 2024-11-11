@@ -78,6 +78,18 @@ def parse_movie_winner_nominees(
     return winner, nominees
 
 
+"""
+    Get the category of the oscar item
+
+    Args:
+        oscar_soup: BeautifulSoup: The soup of the oscar item
+        category_class: str: The class of the category field
+
+    Returns:
+        category: str: The category of the oscar item
+"""
+
+
 def parse_oscar_category(
     oscar_soup: BeautifulSoup,
     category_class="field--name-field-award-category-oscars",
