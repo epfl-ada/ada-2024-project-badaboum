@@ -65,18 +65,23 @@ This project explores the relationship between Oscar-winning films and audience 
 ### Datasets
 - [CMU Dataset](https://www.cs.cmu.edu/~ark/personas/)
 - IMDb Dataset
-- Official Oscars Website: For historical lists of winners and nominees.
-- Box Office Mojo: For tracking box office performance data, particularly to assess the "Oscar bump" effect.
+- Official Oscars Website
+- IMDB reviews
+- 
 
 ### Methods
 Data collection:
 - Web scraping IMDb for ratings, reviews, and other metadata.
 - Querying the Oscars database for nominees and winners.
 
+Data processing:
+- Merging IMDB and CMU datasets to create a unified database.
+
 Data analysis:
 - Sentiment analysis of reviews to assess audience reception.
 - Time series analysis of ratings to track changes over time.
 - Statistical tests to compare ratings between Oscar winners, nominees, and box-office hits.
+- Visualization of trends and biases in Oscar nominations and wins.
 
 ### Proposed timeline
 #### Milestone 2 (deadline Nov 15)
@@ -117,5 +122,5 @@ Week 7 (Dec 9 - Dec 16):
 
 
 ### Organization within the team
-
-### Questions for TAs (optional)
+Each member was responsible for at least one research question. The other members would provide feedback and suggestions to improve the analysis. The team would meet weekly to discuss progress, challenges, and next steps. The team would also share resources and insights to support each other’s work.
+The other tasks were distributed as evenly as possible, based on the workload of the assigned research questions.
