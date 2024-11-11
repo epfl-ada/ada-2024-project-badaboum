@@ -56,6 +56,17 @@ def parse_args():
     return args
 
 
+"""
+    Get the URL of the IMDb page of a movie
+
+    Args:
+        imdb_id: str: The IMDb ID of the movie
+
+    Returns:
+        str: The URL of the IMDb page of the movie
+"""
+
+
 def get_url(imdb_id: str) -> str:
     BASE_URL = "https://www.imdb.com/title/"
     ASC_SORT_NO_SPOILERS = (
@@ -63,6 +74,20 @@ def get_url(imdb_id: str) -> str:
     )
 
     return BASE_URL + imdb_id + ASC_SORT_NO_SPOILERS
+
+
+"""
+    Parse the review data from the review soup
+
+    Args:
+        review_soup: BeautifulSoup: The soup of the review item
+
+    Returns:
+        str: The title of the review
+        str: The text of the review
+        str: The rating of the review
+        datetime: The date of the review
+"""
 
 
 def parse_review(review_soup: BeautifulSoup):
@@ -84,9 +109,31 @@ def parse_review(review_soup: BeautifulSoup):
     return review_title, review_text, rating, review_date
 
 
+"""
+    Get the list of review soup items from the page source
+
+    Args:
+        page_source: str: The page source of the IMDb reviews page
+
+    Returns:
+        list[BeautifulSoup]: The list of review soup items
+"""
+
+
 def get_reviews_soup_list(page_source: str) -> list:
     soup = BeautifulSoup(page_source, "html.parser")
     return soup.find_all("article", class_="user-review-item")
+
+
+"""
+    Get the most recent review year from the page source
+
+    Args:
+        page_source: str: The page source of the IMDb reviews page
+
+    Returns:
+        int: The year of the most recent review
+"""
 
 
 def get_most_recent_review_year(page_source: str) -> int:
@@ -96,6 +143,17 @@ def get_most_recent_review_year(page_source: str) -> int:
     # Thus, the most recent review is the last one
     _, _, _, most_recent_review_date = parse_review(review_soups[-1])
     return most_recent_review_date.year
+
+
+"""
+    Scrape the reviews from the IMDb page
+
+    Args:
+        page_source: str: The page source of the IMDb reviews page
+
+    Returns:
+        list[dict]: The list of reviews data
+"""
 
 
 def scrape_reviews(page_source: str):
@@ -116,10 +174,29 @@ def scrape_reviews(page_source: str):
     return reviews_data
 
 
+"""
+    Get the number of loaded reviews from the page source
+
+    Args:
+        page_source: str: The page source of the IMDb reviews page
+
+    Returns:
+        int: The number of loaded reviews
+"""
+
+
 def get_nb_loaded_reviews(page_source: str) -> int:
     soup = BeautifulSoup(page_source, "html.parser")
     review_soups = soup.find_all("article", class_="user-review-item")
     return len(review_soups)
+
+
+"""
+    Create a Firefox driver
+
+    Returns:
+        driver: webdriver.Firefox: The Firefox driver
+"""
 
 
 def create_driver() -> webdriver.Firefox:
@@ -127,6 +204,19 @@ def create_driver() -> webdriver.Firefox:
     options.add_argument("--headless")
     driver = webdriver.Firefox(options=options)
     return driver
+
+
+"""
+    Load all reviews for a movie until a certain year
+
+    Args:
+        driver: webdriver.Firefox: The Firefox driver
+        max_year: int: The year until which to load reviews (included), if None, load all reviews
+        time_between_click_trials: int: The time to wait between click trials
+        time_between_review_loading: int: The time to wait between review loading
+        max_click_trials: int: The maximum number of click trials
+        timeout: int: The timeout for waiting for the see more button
+"""
 
 
 def load_all_reviews(
@@ -179,6 +269,19 @@ def load_all_reviews(
         print(f"Reviews loaded for current movie: {current_nb_reviews}", end="\r")
 
 
+"""
+    Scrape all reviews for a movie until a certain year
+
+    Args:
+        driver: webdriver.Firefox: The Firefox driver
+        base_url: str: The base URL of the IMDb page
+        max_year: int: The year until which to scrape reviews (included), if None, scrape all reviews
+
+    Returns:
+        list[dict]: The list of reviews data
+"""
+
+
 def scrape_all_reviews(
     driver: webdriver.Firefox, base_url: str, max_year: int = None
 ) -> list:
@@ -199,6 +302,11 @@ def scrape_all_reviews(
         reviews = [review for review in reviews if review["date"].year <= max_year]
 
     return reviews
+
+
+"""
+    Main function to scrape reviews for a list of movies
+"""
 
 
 def main():
