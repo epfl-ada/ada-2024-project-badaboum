@@ -46,6 +46,19 @@ def parse_args():
     return args
 
 
+"""
+    Get the winner and nominees of a movie from the soup of the oscar item
+
+    Args:
+        oscar_soup: BeautifulSoup: The soup of the oscar item
+        movie_name_class: str: The class of the movie name field
+
+    Returns:
+        winner: str: The winner of the category
+        nominees: list: The nominees of the category
+"""
+
+
 def parse_movie_winner_nominees(
     oscar_soup: BeautifulSoup,
     movie_name_class="field--name-field-award-film",
@@ -65,6 +78,18 @@ def parse_movie_winner_nominees(
     return winner, nominees
 
 
+"""
+    Get the category of the oscar item
+
+    Args:
+        oscar_soup: BeautifulSoup: The soup of the oscar item
+        category_class: str: The class of the category field
+
+    Returns:
+        category: str: The category of the oscar item
+"""
+
+
 def parse_oscar_category(
     oscar_soup: BeautifulSoup,
     category_class="field--name-field-award-category-oscars",
@@ -76,6 +101,20 @@ def parse_oscar_category(
 # For some categories, the oscars page does not follow the same structure
 # as the other categories, so we need to handle them separately
 SPECIAL_CATEGORIES = ["international feature film"]
+
+
+"""
+    Get the winner and nominees of a movie from the soup of the oscar item
+    for special categories (because some categories have a different structure)
+
+    Args:
+        oscar_soup: BeautifulSoup: The soup of the oscar item
+        category: str: The category of the oscar item (must be in SPECIAL_CATEGORIES)
+
+    Returns:
+        winner: str: The winner of the category
+        nominees: list: The nominees of the category
+"""
 
 
 def parse_movie_winner_nominees_special_category(
@@ -94,21 +133,25 @@ def parse_movie_winner_nominees_special_category(
 
 
 """
-  Get the oscar ceremony date from the oscars page
+    Get the oscar ceremony date from the oscars page
 
-  Args:
-    page_source: str: The page source of the oscars page
+    Args:
+        page_source: str: The page source of the oscars page
+        ceremony_date_class: str: The class of the ceremony date field
+
+    Returns:
+        ceremony_date: datetime: The date of the ceremony
 """
 
 
 def scrape_ceremony_date(
     page_source: str,
     ceremony_date_class="field--name-field-date-time",
-): 
+):
     # Parse the page
     soup = BeautifulSoup(page_source, "html.parser")
 
-    # Get the date of the ceremony (in a string format) 
+    # Get the date of the ceremony (in a string format)
     ceremony_date_string = soup.find("div", class_=ceremony_date_class).text.strip()
 
     # Cast the date to a "datetime" object
@@ -167,12 +210,33 @@ def scrape_winners_nominees(
     return oscar_winners, oscar_nominees
 
 
+"""
+    Create a Firefox driver
+
+    Returns:
+        driver: webdriver.Firefox: The Firefox driver
+"""
+
+
 def create_driver() -> webdriver.Firefox:
     options = webdriver.FirefoxOptions()
     options.add_argument("--headless")
 
     driver = webdriver.Firefox(options=options)
     return driver
+
+
+"""
+    Get the page source of the oscars page for a given year
+
+    Args:
+        driver: webdriver.Firefox: The Firefox driver
+        base_url: str: The base URL of the oscars page
+        year: int: The year of the oscars page
+
+    Returns:
+        str: The page source of the oscars page
+"""
 
 
 def get_page_source(
@@ -184,6 +248,20 @@ def get_page_source(
     driver.get(url)
 
     return driver.page_source
+
+
+"""
+    Scrape the winners and nominees of the oscars for a given year
+
+    Args:
+        driver: webdriver.Firefox: The Firefox driver
+        base_url: str: The base URL of the oscars page
+        year: int: The year of the oscars page
+        oscar_categories: list: The oscar categories to scrape, if None, scrape all
+
+    Returns:
+        pd.DataFrame: The dataframe containing the scraped data
+"""
 
 
 def scrape_year(
@@ -233,6 +311,11 @@ def scrape_year(
         )
 
     return pd.DataFrame(data)
+
+
+"""
+    Main function to scrape the oscars data
+"""
 
 
 def main():
