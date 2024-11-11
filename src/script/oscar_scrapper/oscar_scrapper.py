@@ -103,6 +103,20 @@ def parse_oscar_category(
 SPECIAL_CATEGORIES = ["international feature film"]
 
 
+"""
+    Get the winner and nominees of a movie from the soup of the oscar item
+    for special categories (because some categories have a different structure)
+
+    Args:
+        oscar_soup: BeautifulSoup: The soup of the oscar item
+        category: str: The category of the oscar item (must be in SPECIAL_CATEGORIES)
+
+    Returns:
+        winner: str: The winner of the category
+        nominees: list: The nominees of the category
+"""
+
+
 def parse_movie_winner_nominees_special_category(
     oscar_soup: BeautifulSoup,
     category: str,
