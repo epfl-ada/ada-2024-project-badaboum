@@ -1,4 +1,6 @@
+# Dataset directory
 data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -169,5 +171,5 @@ cython_debug/
 # Jupyter stuff
 .virtual_documents
 
-# Dataset directory
-data/
+# vscode
+.vscode/
