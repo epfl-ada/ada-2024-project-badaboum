@@ -133,10 +133,14 @@ def parse_movie_winner_nominees_special_category(
 
 
 """
-  Get the oscar ceremony date from the oscars page
+    Get the oscar ceremony date from the oscars page
 
-  Args:
-    page_source: str: The page source of the oscars page
+    Args:
+        page_source: str: The page source of the oscars page
+        ceremony_date_class: str: The class of the ceremony date field
+
+    Returns:
+        ceremony_date: datetime: The date of the ceremony
 """
 
 
