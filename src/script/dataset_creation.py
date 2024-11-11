@@ -1,6 +1,6 @@
 import pandas as pd
 from argparse import ArgumentParser
-
+import ast
 
 def parse_args():
     parser = ArgumentParser(description="Create final datasets")
@@ -38,9 +38,57 @@ def parse_args():
 
     return args
 
+def parse_genres_imdb(column):
+    """
+    Parses a column of genre strings, splitting each string by commas to
+    create a list of genres for each entry.
+
+    Parameters:
+    column (pd.Series): A pandas Series containing genre strings,
+                        with genres separated by commas.
+
+    Returns:
+    pd.Series: A Series where each element is a list of genres.
+               If an element in the original Series is null, it returns an empty list.
+    """
+    return column.apply(lambda x: x.split(",") if pd.notnull(x) else [])
+
+
+def extract_countries_cmu(countries_column):
+    """
+    Extracts country names from a column containing string representations of dictionaries,
+    where each dictionary maps keys to country names.
+
+    Parameters:
+    countries_column (pd.Series): A pandas Series with string representations of dictionaries,
+                                  where each dictionary has country information.
+
+    Returns:
+    pd.Series: A Series where each element is a list of country names.
+               If parsing fails for an entry, it returns an empty list.
+    """
+
+    def parse_country_dict(country_dict_str):
+        try:
+            country_dict = ast.literal_eval(
+                country_dict_str
+            )  # Convert string to dictionary
+            return list(country_dict.values())  # Return only country names
+        except (ValueError, SyntaxError):
+            return []  # Return empty list if parsing fails
+
+    return countries_column.apply(parse_country_dict)
 
 def oscars_processing(movies, oscar_winners):
-    """Merges the movies data and the oscars winners to keep only data for oscar nominees/winners"""
+    """
+    Merges the movies data and the oscars winners to keep only data for oscar nominees/winners 
+    
+    Parameters:
+    movies (pd.DataFrame): A pandas DataFrame containing the movies' data, from CMU and IMDB
+    oscar_winners (pd.DataFrame): A pandas DataFrame containing movies nominated for the oscars
+     
+    Returns:
+    pd.DataFrame: A DataFrame which contains the movies' data for nominated ones at the oscars for Best Motion Picture """
 
     # Inner join on the oscar and the movies, keeping only the ones nominated and winners
     df = pd.merge(
@@ -78,7 +126,16 @@ def oscars_processing(movies, oscar_winners):
 
 
 def others_processing(movies, oscar_winners, n):
-    """Extracts the top n rated movies that were not nominated to oscars"""
+    """
+    Extracts the top n rated movies that were not nominated to oscars
+    
+    Parameters:
+    movies (pd.DataFrame): A pandas DataFrame containing the movies' data, from CMU and IMDB
+    oscar_winners (pd.DataFrame): A pandas DataFrame containing movies nominated for the oscars
+     
+    Returns:
+    pd.DataFrame: A DataFrame which contains the movies' data for NOT nominated ones
+    """
     # Left join
     df = pd.merge(
         movies,
@@ -103,7 +160,16 @@ def others_processing(movies, oscar_winners, n):
 
 
 def data_processing(oscar_winners, titles, ratings, metadata, n):
-    """Creates a DataFrame that combines movies data, ratings and oscar win/nomination"""
+    """Creates a DataFrame that combines movies data, ratings and oscar win/nomination
+    
+    Parameters:
+    movies (pd.DataFrame): A pandas DataFrame containing the movies' data, from CMU and IMDB
+    oscar_winners (pd.DataFrame): A pandas DataFrame containing movies nominated for the oscars
+     
+    Returns:
+    oscar_picture (pd.DataFrame): A DataFrame which contains the movies' data for nominated ones at the oscars for Best Motion Picture 
+    others (pd.DataFrame) A DataFrame which contains the movies' data for NOT nominated ones
+    """
 
     # Creating a df with the titles and their ratings from IMDB
     ratings_title = pd.merge(titles, ratings, on="tconst")
@@ -128,14 +194,20 @@ def data_processing(oscar_winners, titles, ratings, metadata, n):
             "endYear",
             "originalTitle",
             "titleType",
+            "genres_y"
         ]
     )
 
     # Renaming columns for better understanding
     movies = movies.rename(
-        columns={"genres_x": "IMDB_genres", "genres_y": "CMU_genres"}
+        columns={"genres_x": "IMDB_genres"}
     )
 
+    # Converting countries and genres to lists
+    
+    movies['IMDB_genres'] = parse_genres_imdb(movies['IMDB_genres'])
+    movies['countries'] = extract_countries_cmu(movies['countries'])
+ 
     # Converting the numerical values from string to int
     movies["runtimeMinutes"] = pd.to_numeric(movies["runtimeMinutes"], errors="coerce")
     movies["startYear"] = pd.to_numeric(movies["startYear"], errors="coerce")
