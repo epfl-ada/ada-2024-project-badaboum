@@ -1,4 +1,3 @@
-import ast
 import pandas as pd
 
 
@@ -16,6 +15,3 @@ def parse_str_to_list(column):
                If an element in the original Series is null, it returns an empty list.
     """
     return column.apply(lambda x: x.split(",") if pd.notnull(x) else [])
-
-
-
