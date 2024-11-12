@@ -186,6 +186,3 @@ def plot_oscar_winners_vs_audience_ratings_gap():
         "Difference in ratings between the top rated movie and the Oscar winner (%)"
     )
     plt.show()
-
-
-plot_oscar_winners_vs_audience_ratings_gap()
