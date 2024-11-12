@@ -24,7 +24,7 @@ def load_other_movies() -> pd.DataFrame:
     return pd.read_csv(f"{DATA_PATH}all_other_movies.csv")
 
 
-def print_ttset_winner_vs_nomiees_ratings():
+def print_ttest_winner_vs_nominees_ratings():
     oscar_winners, oscar_nominees = load_oscar_winners_nominees()
 
     # Perform a t-test to determine if the average ratings of winners and nominees are significantly different
@@ -78,9 +78,11 @@ def plot_winner_vs_nominees_vs_box_office_hit_ratings():
     sns.boxplot(x=0, y="averageRating", data=top_movies)
     sns.boxplot(x=1, y="averageRating", data=oscar_nominees)
     sns.boxplot(x=2, y="averageRating", data=oscar_winners)
-    plt.title("Average rating of Box office hits and Oscar winners and nominees")
+    plt.title(
+        "Average rating distribution of Box office hits and Oscar winners and nominees"
+    )
     plt.xlabel("")
-    plt.ylabel("Average Rating")
+    plt.ylabel("Average rating distribution")
     plt.legend(["Box office hit", "Nominee", "Winner"])
     plt.xticks([0, 1, 2], ["Box office hit", "Nominee", "Winner"])
     plt.show()
@@ -142,14 +144,14 @@ def get_audience_oscar_concordance():
 
 
 def plot_oscar_winners_vs_audience_concordance():
-    audience_oscar_same_df = get_audience_oscar_concordance()
+    audience_oscar_same_df, _ = get_audience_oscar_concordance()
 
     # Plot the years where the top rated movie was the Oscar winner
-    plt.figure(figsize=(10, 2))
+    plt.figure(figsize=(12, 2.2))
     sns.barplot(x="release", y="same", data=audience_oscar_same_df)
 
     plt.yticks([0, 1], ["No", "Yes"])
-    plt.ylabel("Top rated movie was the Oscar winner")
+    plt.ylabel("Oscar winner = best-rated ?")
 
     plt.xlabel("Year")
     plt.xticks(rotation=90)
@@ -158,7 +160,7 @@ def plot_oscar_winners_vs_audience_concordance():
     plt.show()
 
 
-def plot_oscar_winners_vs_audience_ratings_gap():
+def get_ratings_gap_df():
     _, top_rated_movies_df = get_audience_oscar_concordance()
     oscar_winners, _ = load_oscar_winners_nominees()
 
@@ -174,9 +176,16 @@ def plot_oscar_winners_vs_audience_ratings_gap():
         * 100
     )
 
-    plt.figure(figsize=(10, 6))
+    return top_rated_vs_oscar
+
+
+def plot_oscar_winners_vs_audience_ratings_gap():
+    top_rated_vs_oscar = get_ratings_gap_df()
+
+    plt.figure(figsize=(12, 6))
 
     sns.barplot(x="release", y="gap_percent", data=top_rated_vs_oscar)
+
     plt.xticks(rotation=90)
 
     plt.ylabel("Difference in ratings (%)")
@@ -184,5 +193,20 @@ def plot_oscar_winners_vs_audience_ratings_gap():
 
     plt.title(
         "Difference in ratings between the top rated movie and the Oscar winner (%)"
+    )
+    plt.show()
+
+
+def plot_oscar_winners_vs_audience_ratings_gap_box():
+    top_rated_vs_oscar = get_ratings_gap_df()
+
+    plt.figure(figsize=(6, 5))
+    sns.boxplot(y="gap_percent", data=top_rated_vs_oscar)
+
+    plt.xticks([])
+    plt.ylabel("Difference in ratings (%)")
+
+    plt.title(
+        "Difference in ratings between the\n top rated movie and the Oscar winner (%)"
     )
     plt.show()
