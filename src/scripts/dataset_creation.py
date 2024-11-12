@@ -38,21 +38,6 @@ def parse_args():
 
     return args
 
-def parse_genres_imdb(column):
-    """
-    Parses a column of genre strings, splitting each string by commas to
-    create a list of genres for each entry.
-
-    Parameters:
-    column (pd.Series): A pandas Series containing genre strings,
-                        with genres separated by commas.
-
-    Returns:
-    pd.Series: A Series where each element is a list of genres.
-               If an element in the original Series is null, it returns an empty list.
-    """
-    return column.apply(lambda x: x.split(",") if pd.notnull(x) else [])
-
 
 def extract_countries_cmu(countries_column):
     """
@@ -64,8 +49,8 @@ def extract_countries_cmu(countries_column):
                                   where each dictionary has country information.
 
     Returns:
-    pd.Series: A Series where each element is a list of country names.
-               If parsing fails for an entry, it returns an empty list.
+    pd.Series: A Series where each element is a list of country names converted to string.
+               If parsing fails for an entry, it returns an empty string.
     """
 
     def parse_country_dict(country_dict_str):
@@ -73,9 +58,10 @@ def extract_countries_cmu(countries_column):
             country_dict = ast.literal_eval(
                 country_dict_str
             )  # Convert string to dictionary
-            return list(country_dict.values())  # Return only country names
+            # Join the country names into a single string, separated by commas
+            return ", ".join(country_dict.values())  # Return only country names
         except (ValueError, SyntaxError):
-            return []  # Return empty list if parsing fails
+            return ""  # Return empty list if parsing fails
 
     return countries_column.apply(parse_country_dict)
 
@@ -204,8 +190,6 @@ def data_processing(oscar_winners, titles, ratings, metadata, n):
     )
 
     # Converting countries and genres to lists
-    
-    movies['IMDB_genres'] = parse_genres_imdb(movies['IMDB_genres'])
     movies['countries'] = extract_countries_cmu(movies['countries'])
  
     # Converting the numerical values from string to int

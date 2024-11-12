@@ -65,12 +65,13 @@ This project explores the relationship between Oscar-winning films and audience 
 ### Datasets
 - [CMU Dataset](https://www.cs.cmu.edu/~ark/personas/)
 - IMDb Dataset
-- Official Oscars Website
 - IMDB reviews
-- 
+- Official Oscars Website
+- Golden globes and BAFTA awards (Kaggle)
 
 ### Methods
 Data collection:
+- Downloading CMU, IMDB and Kaggle datasets
 - Web scraping IMDb for ratings, reviews, and other metadata.
 - Querying the Oscars database for nominees and winners.
 
