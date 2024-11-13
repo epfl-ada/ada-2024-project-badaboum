@@ -13,7 +13,7 @@ git clone git@github.com:epfl-ada/ada-2024-project-badaboum.git
 cd ada-2024-project-badaboum
 
 # [OPTIONAL] create conda environment
-conda create -n <env_name> python=3.11 or ...
+conda create -n <env_name> python=3.11
 conda activate <env_name>
 
 
