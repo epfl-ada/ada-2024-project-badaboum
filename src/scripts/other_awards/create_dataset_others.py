@@ -39,4 +39,4 @@ all_merged = all_merged.drop(columns = ['year_film', 'nominee'])
 all_merged = all_merged.rename(columns = {'winner':'win_o'})
 
 
-all_merged.to_csv(PATH + "other_movies.csv")
+all_merged.to_csv(PATH + "other_awards.csv")

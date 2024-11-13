@@ -7,7 +7,7 @@ from ..utils.data_parsing import parse_str_to_list
 
 def get_data():
     PATH = "data/other_awards/"
-    return pd.read_csv(PATH + 'other_movies.csv')
+    return pd.read_csv(PATH + 'other_awards.csv')
 
 def ratings_by_awards():
     data = get_data()
