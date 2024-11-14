@@ -137,15 +137,13 @@ Week 3 (Nov 11 - Nov 18):
 
 #### Milestone 3 (deadline Dec 20)
 Week 4 (Nov 18 - Nov 25):
-- Advanced Analysis Development: Begin implementing more detailed analyses.
-- Visualization Prototypes: Start creating initial visualizations, such as timelines and heatmaps, to showcase early findings.
-- Finalize core analyses and document findings.
-- Finalize Visualizations.
-- Data Story Planning: Outline the data story structure, identifying key findings to highlight.
+- Detailed Analysis Implementation: Continue and refine key analyses based on initial results, focusing on advanced techniques and statistical tests.
+- Data Story Outline: Create a structured outline of the data story, planning the story and highlighting key insights.
 
 Week 5 (Nov 25 - Dec 2):
+- Finalize Analysis: Complete all analyses and visualizations.
+- Notebook Refinement: Update the notebook with final analyses, documenting findings.
 - Data Story Drafting: Begin writing the data story, integrating key visuals and findings.
-- Notebook Refinement: Update the notebook with final analyses, ensuring clear and comprehensive documentation of each step.
 
 Week 6 (Dec 2 - Dec 9):
 - Finalize Data Story.
