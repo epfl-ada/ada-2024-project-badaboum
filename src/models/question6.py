@@ -72,3 +72,25 @@ def plot_genre_distribution():
     plt.legend()
     plt.xticks(x, all_genres, rotation=90)
     plt.show()
+
+
+def plot_runtime_distribution():
+
+    # Load the data
+    winners, non_winners = load_data()
+
+    # Calculate average runtime for winners and non-winners
+    avg_runtime_winners = winners["runtime"].mean()
+    avg_runtime_non_winners = non_winners["runtime"].mean()
+
+    # Plot runtime comparison
+    plt.figure(figsize=(6, 4))
+    plt.bar(
+        ["Winners", "Non-Winners"],
+        [avg_runtime_winners, avg_runtime_non_winners],
+        color=["blue", "orange"],
+    )
+    plt.xlabel("Category")
+    plt.ylabel("Average Runtime (minutes)")
+    plt.title("Average Runtime: Winners vs. Non-Winners")
+    plt.show()
