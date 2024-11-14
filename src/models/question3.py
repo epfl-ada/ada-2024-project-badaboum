@@ -11,8 +11,8 @@ sns.set_theme()
 def load_data_Q3():
 
     df_movies = pd.read_csv('./data/oscar_movies.csv')
-    df_director = pd.read_csv('./data/title.crew.tsv', sep='\t')
-    df_name = pd.read_csv('./data/name.basics.tsv', sep='\t')
+    df_director = pd.read_csv('./data/imdb/title.crew.tsv', sep='\t')
+    df_name = pd.read_csv('./data/imdb/name.basics.tsv', sep='\t')
 
     #Joins director to each movie
     df_merged = pd.merge(df_movies, df_director, on='tconst', how='inner')

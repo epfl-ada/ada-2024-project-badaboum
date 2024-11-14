@@ -5,8 +5,8 @@ import seaborn as sns
 def get_data():
 
     # Get the reviews
-    PATH = 'data/reviews/'
-    reviews = pd.read_csv(PATH +'reviews_with_compound.csv')
+    PATH = 'data/imdb_reviews/'
+    reviews = pd.read_csv(PATH +'imdb_reviews_with_compound.csv')
 
     # Ensure the 'date' column is in datetime format
     reviews['date'] = pd.to_datetime(reviews['date'])
