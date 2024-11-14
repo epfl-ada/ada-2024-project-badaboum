@@ -79,12 +79,6 @@ This project explores the relationship between Oscar-winning films and audience 
 - Does winning an Oscar lead to a measurable increase in ratings or review counts (i.e., the "Oscar bump")?
 - Are there discernible biases within Oscar winners, such as genre, nationality, or star power, that differ from audience preferences?
 
-### Datasets
-- [CMU Dataset](https://www.cs.cmu.edu/~ark/personas/)
-- IMDb Dataset
-- IMDB reviews
-- Official Oscars Website
-- Golden globes and BAFTA awards (Kaggle)
 
 ### Methods
 Data collection:
