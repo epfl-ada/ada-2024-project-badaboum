@@ -43,6 +43,32 @@ Alternatively, you can  set up the datasets yourself.
     ```bash
     ```
 
+Your data directory should look like this:
+```
+├── imdb                  <- IMDb dataset
+|       ├── name.basics.tsv
+|       ├── title.basics.tsv
+|       ├── title.crew.tsv
+|       ├── title.rating.tsv
+├── imdb_reviews               <- IMDb reviews dataset
+|       ├── imdb_reviews_best_picture_2years_from_release.csv
+|       ├── imdb_reviews_with_compound.csv
+├── MoviesSummaries       <- CMU dataset
+│       ├── character.metadata.tsv
+│       ├── movie.metadata.tsv
+│       ├── name.clusters.txt
+│       ├── plot_summaries.txt
+│       ├── README.txt
+│       ├── tvtropes.clusters.txt
+├── other_awards          <- Other awards dataset
+|       ├── bafta_films.csv
+|       ├── golden_globe_awards.csv
+|       ├── other_awards.csv
+├── all_other_movies.csv <- All movies that are not Oscar winners nor nominees
+├── oscar_movies.csv     <- Oscar winners, scrapped from the Oscars website
+├── oscar_winners_1929_2016.csv     <- Oscar winners
+├── other_movies.csv     <- n best rated movies that were not nominated to the oscars
+```
 
 
 ## Project Structure
@@ -102,19 +128,19 @@ Week 1 (Oct 28 - Nov 4):
 
 Week 2 (Nov 4 - Nov 11):
 - Initial Data Collection and Cleaning: Start collecting data from IMDb, CMU, and other sources. Clean and organize data for analysis.
-- Prototype Development: Create basic prototypes for key analyses, such as the Rating Gap Index and bias mapping.
+- Prototype Development: Create basic prototypes for key analyses.
 - Code Documentation.
+
+Week 3 (Nov 11 - Nov 18):
 - Notebook Preparation: Prepare an initial Jupyter notebook showing initial results, with basic descriptive statistics and pipeline verification.
 - Finalize README.
 - Submit Milestone 2.
 
 #### Milestone 3 (deadline Dec 20)
-Week 3 (Nov 11 - Nov 18):
-- Advanced Analysis Development: Begin implementing more detailed analyses, focusing on the Rating Gap Index, the “Oscar bump” effect, and any other comparisons.
-- Visualization Prototypes: Start creating initial visualizations, such as timelines and heatmaps, to showcase early findings.
-
 Week 4 (Nov 18 - Nov 25):
-- Complete Core Analyses: Finalize core analyses, ensuring each research question has a concrete and reliable approach.
+- Advanced Analysis Development: Begin implementing more detailed analyses.
+- Visualization Prototypes: Start creating initial visualizations, such as timelines and heatmaps, to showcase early findings.
+- Finalize core analyses and document findings.
 - Finalize Visualizations.
 - Data Story Planning: Outline the data story structure, identifying key findings to highlight.
 
