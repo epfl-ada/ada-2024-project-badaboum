@@ -79,18 +79,18 @@ def plot_runtime_distribution():
     # Load the data
     winners, non_winners = load_data()
 
-    # Calculate average runtime for winners and non-winners
-    avg_runtime_winners = winners["runtime"].mean()
-    avg_runtime_non_winners = non_winners["runtime"].mean()
+    # Extract runtimes
+    winner_runtimes = winners["runtime"].dropna()
+    non_winner_runtimes = non_winners["runtime"].dropna()
 
-    # Plot runtime comparison
+    # Plot box plot comparison without showing outliers
     plt.figure(figsize=(6, 4))
-    plt.bar(
-        ["Winners", "Non-Winners"],
-        [avg_runtime_winners, avg_runtime_non_winners],
-        color=["blue", "orange"],
+    plt.boxplot(
+        [winner_runtimes, non_winner_runtimes],
+        labels=["Winners", "Non-Winners"],
+        showfliers=False,
     )
     plt.xlabel("Category")
-    plt.ylabel("Average Runtime (minutes)")
-    plt.title("Average Runtime: Winners vs. Non-Winners")
+    plt.ylabel("Runtime (minutes)")
+    plt.title("Runtime Distribution (Without Outliers): Winners vs. Non-Winners")
     plt.show()
