@@ -50,7 +50,8 @@ Your data directory should look like this:
 |       ├── title.basics.tsv
 |       ├── title.crew.tsv
 |       ├── title.rating.tsv
-├── imdb_reviews               <- IMDb reviews dataset
+├── imdb_reviews            <- IMDb reviews dataset
+|       ├── scraped_reviews  <- The scraped reviews
 |       ├── imdb_reviews_best_picture_2years_from_release.csv
 |       ├── imdb_reviews_with_compound.csv
 ├── MoviesSummaries       <- CMU dataset
