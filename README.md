@@ -65,8 +65,8 @@ Your data directory should look like this:
 |       ├── golden_globe_awards.csv
 |       ├── other_awards.csv
 ├── all_other_movies.csv <- All movies that are not Oscar winners nor nominees
-├── oscar_movies.csv     <- Oscar winners, scrapped from the Oscars website
-├── oscar_winners_1929_2016.csv     <- Oscar winners
+├── oscar_movies.csv     <- Oscar winners, merged with IMDb and CMU data
+├── oscar_winners_1929_2016.csv     <- Oscar winners, scrapped from the Oscars website
 ```
 
 
