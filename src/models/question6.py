@@ -24,7 +24,9 @@ def plot_genre_distribution():
 
     # Calculate genre frequencies for winners and non-winners
     def calculate_genre_distribution(genres_list):
-        all_genres = [genre for genres in genres_list for genre in genres]
+        all_genres = [
+            genre for genres in genres_list for genre in genres if genre != r"\N"
+        ]
         genre_counts = Counter(all_genres)
         total = sum(genre_counts.values())
         return {genre: count / total for genre, count in genre_counts.items()}
