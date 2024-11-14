@@ -50,10 +50,12 @@ Your data directory should look like this:
 |       ├── title.basics.tsv
 |       ├── title.crew.tsv
 |       ├── title.rating.tsv
+|
 ├── imdb_reviews            <- IMDb reviews dataset
 |       ├── scraped_reviews  <- The scraped reviews
 |       ├── imdb_reviews_best_picture_2years_from_release.csv
 |       ├── imdb_reviews_with_compound.csv
+|
 ├── MoviesSummaries       <- CMU dataset
 │       ├── character.metadata.tsv
 │       ├── movie.metadata.tsv
@@ -65,9 +67,10 @@ Your data directory should look like this:
 |       ├── bafta_films.csv
 |       ├── golden_globe_awards.csv
 |       ├── other_awards.csv
+|
 ├── all_other_movies.csv <- All movies that are not Oscar winners nor nominees
 ├── oscar_movies.csv     <- Oscar winners, merged with IMDb and CMU data
-├── oscar_winners_1929_2016.csv     <- Oscar winners, scrapped from the Oscars website
+└── oscar_winners_1929_2016.csv     <- Oscar winners, scrapped from the Oscars website
 ```
 
 
@@ -82,7 +85,7 @@ The directory structure of new project looks like this:
 │   ├── models                          <- Model directory
 │   ├── utils                           <- Utility directory
 │   ├── scripts                         <- Shell scripts
-││
+│
 ├── results.ipynb               <- a well-structured notebook showing the results
 │
 ├── .gitignore                  <- List of files ignored by git
