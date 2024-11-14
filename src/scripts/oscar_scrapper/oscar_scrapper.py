@@ -221,8 +221,9 @@ def scrape_winners_nominees(
 def create_driver() -> webdriver.Firefox:
     options = webdriver.FirefoxOptions()
     options.add_argument("--headless")
-
+    options.set_preference('intl.accept_languages', 'en-GB')
     driver = webdriver.Firefox(options=options)
+    
     return driver
 
 
