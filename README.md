@@ -67,7 +67,6 @@ Your data directory should look like this:
 ├── all_other_movies.csv <- All movies that are not Oscar winners nor nominees
 ├── oscar_movies.csv     <- Oscar winners, scrapped from the Oscars website
 ├── oscar_winners_1929_2016.csv     <- Oscar winners
-├── other_movies.csv     <- n best rated movies that were not nominated to the oscars
 ```
 
 
