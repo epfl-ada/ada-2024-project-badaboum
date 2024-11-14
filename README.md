@@ -24,7 +24,24 @@ pip install -r pip_requirements.txt
 
 
 ### How to use the library
-[TODO: Tell us how the code is arranged, any explanations goes here.]
+
+#### Downloading the Data
+You have two options for obtaining the datasets:
+
+**Option A**: Google Drive Download
+Download the complete dataset folder on [Google Drive](https://drive.google.com/drive/folders/15Ug1HI5YHSo6eIUCWqpsr4PWtREzisau?usp=sharing) here and place it in the data directory.
+
+**Option B**: Running Data Download Scripts
+Alternatively, you can  set up the datasets yourself.
+1. Download base datasets from the following links:
+    - [CMU Dataset](https://www.cs.cmu.edu/~ark/personas/)
+    - [IMDb Dataset](https://datasets.imdbws.com/)
+    - [Golden Globes](https://www.kaggle.com/datasets/unanimad/golden-globe-awards)
+    - [BAFTA Awards](https://www.kaggle.com/datasets/unanimad/bafta-awards)
+2. Place the datasets in the ```data``` directory.
+3. Run the following scripts to create the remaining data:
+    ```bash
+    ```
 
 
 
