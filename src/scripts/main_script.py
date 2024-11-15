@@ -9,28 +9,23 @@ command = [
     "--output_file", "../../../data/oscar_winners_1929_2016.csv"
 ]
 
-subprocess.run(command, cwd = script_directory)
+#subprocess.run(command, cwd = script_directory)
 
-# Create oscar_movies.csv and other_movies.csv
-command = ["python", "dataset_creation.py",]
-
-subprocess.run(command)
-
-# Create other_awards.csv
-script_directory = "other_awards"
-
-command = ["python", "create_dataset_others.py",]
-
-subprocess.run(command, cwd = script_directory)
-
-# Create all_other_movies.csv
+# Create oscar_movies.csv and all_other_movies.csv
 command = [
     "python", "dataset_creation.py",
     "--n_movies", "100000",
     "--others_out", "../../data/all_other_movies.csv"
 ]
 
-subprocess.run(command)
+#subprocess.run(command)
+
+# Create other_awards.csv
+script_directory = "other_awards"
+
+command = ["python", "create_dataset_others.py",]
+
+#subprocess.run(command, cwd = script_directory)
 
 # Create review dataset
 
@@ -38,7 +33,7 @@ script_directory = "reviews_scraper"
 
 command = [
     "python", "reviews_scraper.py",
-    "--output_directory", "../../../data/imdb_reviews", 
+    "--output_directory", "../../../data/imdb_reviews/scraped_reviews", 
     "--number_years_from_release", "2",
     "--input_dataset_path", "../../../data/oscar_movies.csv",
     "--imdb_id_column", "tconst",
@@ -51,12 +46,12 @@ command = [
     "python", "combine_reviews.py",
     "--input_dataset_path", "../../../data/oscar_movies.csv",
     "--imdb_id_column", "tconst",
-    "--input_reviews_directory", "../../../data/imdb_reviews",
-    "--output_dataset_path", "../../../data/reviews/imdb_reviews_best_picture_2years_from_release.csv"
+    "--input_reviews_directory", "../../../data/imdb_reviews/scraped_reviews",
+    "--output_dataset_path", "../../../data/imdb_reviews/imdb_reviews_best_picture_2years_from_release.csv"
 ]
 
-subprocess.run(command, cwd = script_directory)
+#subprocess.run(command, cwd = script_directory)
 
-command = ["python", "computer_compound_score.py",]
+command = ["python", "compute_compound_score.py",]
 
-subprocess.run(command, cwd = script_directory)
+#subprocess.run(command, cwd = script_directory)
