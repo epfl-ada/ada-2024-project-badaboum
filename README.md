@@ -24,9 +24,59 @@ pip install -r pip_requirements.txt
 
 
 ### How to use the library
-[TODO: Tell us how the code is arranged, any explanations goes here.]
 
+#### Step 1: Create a ```data``` directory in the root of the project.
 
+#### Step 2:  Downloading the Data
+You have two options for obtaining the datasets:
+
+- **Option A**: Google Drive Download
+    ***Note:*** Only EPFL members have access to the dataset on Google Drive. Download it from [Google Drive](https://drive.google.com/drive/folders/15Ug1HI5YHSo6eIUCWqpsr4PWtREzisau?usp=sharing) and place it in the data directory.
+
+- **Option B**: Running Data Download Scripts
+    Alternatively, you can  set up the datasets yourself.
+    1. Download base datasets from the following links:
+        - [CMU Dataset](https://www.cs.cmu.edu/~ark/personas/)
+        - [IMDb Dataset](https://datasets.imdbws.com/)
+        - [Golden Globes](https://www.kaggle.com/datasets/unanimad/golden-globe-awards)
+        - [BAFTA Awards](https://www.kaggle.com/datasets/unanimad/bafta-awards)
+    2. Place the datasets in the ```data``` directory.
+    3. Run the following scripts to create the remaining data:
+        ```bash
+        ```
+
+Your data directory should look like this:
+```
+├── imdb                  <- IMDb dataset
+|       ├── name.basics.tsv
+|       ├── title.basics.tsv
+|       ├── title.crew.tsv
+|       ├── title.rating.tsv
+|
+├── imdb_reviews            <- IMDb reviews dataset
+|       ├── scraped_reviews  <- The scraped reviews
+|       ├── imdb_reviews_best_picture_2years_from_release.csv
+|       ├── imdb_reviews_with_compound.csv
+|
+├── MoviesSummaries       <- CMU dataset
+│       ├── character.metadata.tsv
+│       ├── movie.metadata.tsv
+│       ├── name.clusters.txt
+│       ├── plot_summaries.txt
+│       ├── README.txt
+│       ├── tvtropes.clusters.txt
+├── other_awards          <- Other awards dataset
+|       ├── bafta_films.csv
+|       ├── golden_globe_awards.csv
+|       ├── other_awards.csv
+|
+├── all_other_movies.csv <- All movies that are not Oscar winners nor nominees
+├── oscar_movies.csv     <- Oscar winners, merged with IMDb and CMU data
+└── oscar_winners_1929_2016.csv     <- Oscar winners, scrapped from the Oscars website
+```
+
+#### Step 3: Run the Results Notebook
+Once the data is set up, open and run results.ipynb to see the analyses and findings.
 
 ## Project Structure
 
@@ -39,8 +89,6 @@ The directory structure of new project looks like this:
 │   ├── models                          <- Model directory
 │   ├── utils                           <- Utility directory
 │   ├── scripts                         <- Shell scripts
-│
-├── tests                       <- Tests of any kind
 │
 ├── results.ipynb               <- a well-structured notebook showing the results
 │
@@ -62,12 +110,6 @@ This project explores the relationship between Oscar-winning films and audience 
 - Does winning an Oscar lead to a measurable increase in ratings or review counts (i.e., the "Oscar bump")?
 - Are there discernible biases within Oscar winners, such as genre, nationality, or star power, that differ from audience preferences?
 
-### Datasets
-- [CMU Dataset](https://www.cs.cmu.edu/~ark/personas/)
-- IMDb Dataset
-- IMDB reviews
-- Official Oscars Website
-- Golden globes and BAFTA awards (Kaggle)
 
 ### Methods
 Data collection:
@@ -93,25 +135,23 @@ Week 1 (Oct 28 - Nov 4):
 
 Week 2 (Nov 4 - Nov 11):
 - Initial Data Collection and Cleaning: Start collecting data from IMDb, CMU, and other sources. Clean and organize data for analysis.
-- Prototype Development: Create basic prototypes for key analyses, such as the Rating Gap Index and bias mapping.
+- Prototype Development: Create basic prototypes for key analyses.
 - Code Documentation.
+
+Week 3 (Nov 11 - Nov 18):
 - Notebook Preparation: Prepare an initial Jupyter notebook showing initial results, with basic descriptive statistics and pipeline verification.
 - Finalize README.
 - Submit Milestone 2.
 
 #### Milestone 3 (deadline Dec 20)
-Week 3 (Nov 11 - Nov 18):
-- Advanced Analysis Development: Begin implementing more detailed analyses, focusing on the Rating Gap Index, the “Oscar bump” effect, and any other comparisons.
-- Visualization Prototypes: Start creating initial visualizations, such as timelines and heatmaps, to showcase early findings.
-
 Week 4 (Nov 18 - Nov 25):
-- Complete Core Analyses: Finalize core analyses, ensuring each research question has a concrete and reliable approach.
-- Finalize Visualizations.
-- Data Story Planning: Outline the data story structure, identifying key findings to highlight.
+- Detailed Analysis Implementation: Continue and refine key analyses based on initial results, focusing on advanced techniques and statistical tests.
+- Data Story Outline: Create a structured outline of the data story, planning the story and highlighting key insights.
 
 Week 5 (Nov 25 - Dec 2):
+- Finalize Analysis: Complete all analyses and visualizations.
+- Notebook Refinement: Update the notebook with final analyses, documenting findings.
 - Data Story Drafting: Begin writing the data story, integrating key visuals and findings.
-- Notebook Refinement: Update the notebook with final analyses, ensuring clear and comprehensive documentation of each step.
 
 Week 6 (Dec 2 - Dec 9):
 - Finalize Data Story.
