@@ -220,8 +220,8 @@ def main():
 
     # Importing the datasets
     oscar_winners = pd.read_csv(args.oscars_in)
-    titles = pd.read_csv(PATH + "title.basics.tsv", sep="\t")
-    ratings = pd.read_csv(PATH + "title.ratings.tsv", sep="\t")
+    titles = pd.read_csv(PATH + "imdb/title.basics.tsv", sep="\t")
+    ratings = pd.read_csv(PATH + "imdb/title.ratings.tsv", sep="\t")
 
     col_names = [
         "wiki mID",
