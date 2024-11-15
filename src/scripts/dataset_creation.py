@@ -216,7 +216,6 @@ def data_processing(oscar_winners, titles, ratings, metadata, n):
 
 def main():
     args = parse_args()
-   
     PATH = "../../data/"
 
     # Importing the datasets
