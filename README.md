@@ -42,7 +42,8 @@ You have two options for obtaining the datasets:
         - [BAFTA Awards](https://www.kaggle.com/datasets/unanimad/bafta-awards)
     2. Place the datasets in the ```data``` directory.
     3. Run the following scripts to create the remaining data:
-        ```main_script.py
+        ```
+        main_script.py
         ```
 
 Your data directory should look like this:
