@@ -30,7 +30,10 @@ gg_motion_picture = golden_globe[golden_globe['category'].str.startswith("Best M
 gg_motion_picture = gg_motion_picture.reset_index(drop = True)
 
 # Merge Golden globes and Bafta
-merged_df = pd.merge(gg_motion_picture, bafta_best_film, on = 'nominee', how = 'inner')
+merged_df = pd.merge(gg_motion_picture, bafta_best_film, on = 'nominee', how = 'outer')
+# Replace NaN values with False in the winner columns
+merged_df['win'] = merged_df['win'].fillna(False)
+merged_df['winner'] = merged_df['winner'].fillna(False)
 
 merged_df = merged_df.rename(columns = {'year_award':'year_gg', 'category_x': 'category_gg', 'win':'win_gg', 'year':'year_b', 'category_y':'category_b', 'winner':'win_b'})
 
