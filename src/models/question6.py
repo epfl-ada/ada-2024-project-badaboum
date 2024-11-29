@@ -74,6 +74,73 @@ def plot_genre_distribution():
     plt.show()
 
 
+def genre_bias():
+    # Load the data
+    winners, non_winners = load_data()
+
+    # Calculate genre frequencies for winners and non-winners
+    def calculate_genre_distribution(genres_list):
+        all_genres = [
+            genre for genres in genres_list for genre in genres if genre != r"\N"
+        ]
+        genre_counts = Counter(all_genres)
+        total = sum(genre_counts.values())
+        return {genre: count / total for genre, count in genre_counts.items()}
+
+    winner_genre_distribution = calculate_genre_distribution(winners["IMDB_genres"])
+    non_winner_genre_distribution = calculate_genre_distribution(
+        non_winners["IMDB_genres"]
+    )
+
+    # Align genres between winner and non-winner distributions
+    all_genres = set(winner_genre_distribution.keys()).union(
+        set(non_winner_genre_distribution.keys())
+    )
+
+    # Create aligned genre distributions with 0 for missing genres
+    aligned_winner_genre_distribution = {
+        genre: winner_genre_distribution.get(genre, 0) for genre in all_genres
+    }
+    aligned_non_winner_genre_distribution = {
+        genre: non_winner_genre_distribution.get(genre, 0) for genre in all_genres
+    }
+
+    # Calculate the bias factor for each genre
+    genre_bias_factors = {
+        genre: (
+            aligned_winner_genre_distribution[genre]
+            / aligned_non_winner_genre_distribution[genre]
+            if aligned_non_winner_genre_distribution[genre] > 0
+            else np.nan  # Avoid division by zero
+        )
+        for genre in all_genres
+    }
+
+    # Sort genres by bias factor
+    sorted_genres = sorted(
+        genre_bias_factors.keys(), key=lambda g: genre_bias_factors[g], reverse=True
+    )
+
+    # Plot bias factors
+    plt.figure(figsize=(10, 6))
+    plt.bar(
+        sorted_genres,
+        [genre_bias_factors[genre] for genre in sorted_genres],
+        color="skyblue",
+    )
+    plt.axhline(1, color="red", linestyle="--", label="No Bias")
+    plt.xlabel("Genres")
+    plt.ylabel("Bias Factor (Winners/Non-Winners)")
+    plt.title("Genre Bias Factors: Winners vs. Non-Winners")
+    plt.xticks(rotation=90)
+    plt.legend()
+    plt.show()
+
+    # Print sorted bias factors for detailed inspection
+    for genre in sorted_genres:
+        print(f"{genre}: {genre_bias_factors[genre]:.2f}")
+
+
 def plot_runtime_distribution():
 
     # Load the data
