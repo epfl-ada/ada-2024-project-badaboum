@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from src.models.question1.datasets_loading import (
     load_oscar_winners_nominees_all_categories,
     load_oscar_winners_nominees_best_pict,
+    load_oscar_movies_all_categories,
     load_other_movies,
 )
 from src.models.question1.box_office_hit import get_top_box_office_movies
@@ -157,3 +158,20 @@ def plot_causal_effect_of_new_cat():
 def plot_causal_effect_of_base_cat():
     cat_effects, cat_standard_errors = get_causal_effect_for_base_cat()
     plot_causal_effect_of_each_cat(cat_effects, cat_standard_errors)
+
+
+def plot_ratings_vs_nb_oscars():
+    oscar_movies_df = load_oscar_movies_all_categories()
+    nb_oscars = (
+        oscar_movies_df[["tconst", "averageRating", "winner"]]
+        .groupby(["tconst", "averageRating"])
+        .sum()["winner"]
+        .reset_index()
+    )
+    nb_oscars["winner"].value_counts()
+
+    sns.boxplot(x="winner", y="averageRating", data=nb_oscars)
+    plt.title("Average rating of movies vs number of oscars won")
+    plt.xlabel("Number of oscars won")
+    plt.ylabel("Average rating")
+    plt.show()
