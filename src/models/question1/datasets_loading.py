@@ -1,5 +1,6 @@
 import pandas as pd
 
+from src.models.question1.category_mapping import map_categories
 
 DATA_PATH = "data/"
 
@@ -26,6 +27,13 @@ def load_oscar_movies_all_categories() -> pd.DataFrame:
     )
 
     return all_cat_movies
+
+
+def load_oscar_movies_new_categories() -> pd.DataFrame:
+    oscar_movies = load_oscar_movies_all_categories()
+    oscar_movies = map_categories(oscar_movies)
+
+    return oscar_movies
 
 
 # Load the other movies data (not oscar nominated)

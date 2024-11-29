@@ -1,5 +1,6 @@
 from src.models.question1.datasets_loading import (
     load_oscar_winners_nominees_all_categories,
+    load_oscar_movies_all_categories,
 )
 from scipy.stats import ttest_ind
 import pandas as pd
@@ -68,3 +69,13 @@ def print_reg_ratings_all():
     )
     results = model.fit(cov_type="HC3")
     print(results.summary())
+
+
+def print_oscar_categories(min_samples: int = 10):
+    oscar_movies = load_oscar_movies_all_categories()
+
+    categories = oscar_movies["oscar_category"].value_counts()
+    categories = categories[categories > min_samples]
+
+    for category in categories.index:
+        print(f"Category: {category}, Number of samples: {categories[category]}")

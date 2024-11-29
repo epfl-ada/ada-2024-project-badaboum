@@ -1,5 +1,6 @@
 from src.models.question1.datasets_loading import (
     load_oscar_movies_all_categories,
+    load_oscar_movies_new_categories,
 )
 from scipy.stats import ttest_ind
 import pandas as pd
@@ -37,13 +38,14 @@ def get_causal_effect_for_cat(
     matching = nx.min_weight_matching(G)
 
     if len(matching) < min_matches:
-        return np.nan
+        return np.nan, np.nan
 
     # Compute the ATE
     def is_treated(node_id):
         return node_id in treated_df.index
 
-    ATE = 0
+    ate = 0
+    deltas = []
 
     for pair in matching:
         control_id = pair[0] if is_treated(pair[1]) else pair[1]
@@ -52,18 +54,48 @@ def get_causal_effect_for_cat(
         control_row = winners_nominees_df.loc[control_id]
         treated_row = winners_nominees_df.loc[treated_id]
 
-        ATE += treated_row["averageRating"] - control_row["averageRating"]
+        delta = treated_row["averageRating"] - control_row["averageRating"]
+        ate += delta
+        deltas.append(delta)
 
-    ATE /= len(matching)
+    ate /= len(matching)
 
-    return ATE
+    se_ate = np.std(deltas) / np.sqrt(len(matching))
+
+    return ate, se_ate
 
 
-def get_causal_effect_for_each_cat(min_occurences_for_cat: int = 10):
-    oscar_movies_df = load_oscar_movies_all_categories()
+def get_causal_effect_for_each_cat(
+    oscar_movies_df: pd.DataFrame, min_occurences_for_cat: int = 10
+):
+    # Get the number of oscar wins for each movie
+    nb_wins_df = (
+        oscar_movies_df[["tconst", "winner"]][oscar_movies_df["winner"] == True]
+        .groupby("tconst")
+        .count()
+        .reset_index()
+    )
+
+    # Remove nominees movies that won in another category
+    oscar_movies_df = oscar_movies_df[
+        ~(
+            # The movie won in another category
+            (oscar_movies_df["tconst"].isin(nb_wins_df["tconst"]))
+            & (oscar_movies_df["winner"] == False)  # The movie is a nominee
+        )
+    ]
+
+    single_oscar_movies_df = nb_wins_df[nb_wins_df["winner"] == 1]
+
+    # Keep movies that won in a single category
+    oscar_movies_df = oscar_movies_df[
+        (oscar_movies_df["tconst"].isin(single_oscar_movies_df["tconst"]))
+        | (oscar_movies_df["winner"] == False)
+    ]
 
     categories = oscar_movies_df["oscar_category"].unique()
-    ATE_per_category = {}
+    ate_per_category = {}
+    se_per_category = {}
 
     for category in categories:
         if (
@@ -72,22 +104,47 @@ def get_causal_effect_for_each_cat(min_occurences_for_cat: int = 10):
         ):
             continue
 
-        ATE = get_causal_effect_for_cat(oscar_movies_df, category)
+        ate, se_ate = get_causal_effect_for_cat(oscar_movies_df, category)
 
         # Check if the ATE was computed successfully
-        if not np.isnan(ATE):
-            ATE_per_category[category] = ATE
+        if not np.isnan(ate):
+            ate_per_category[category] = ate
+            se_per_category[category] = se_ate
 
-    return ATE_per_category
+    return ate_per_category, se_per_category
 
 
-def print_causal_effect_for_each_cat():
-    ATE_per_category = get_causal_effect_for_each_cat()
+def print_causal_effect_for_each_cat(oscar_movies_df: pd.DataFrame):
+    ate_per_category, _ = get_causal_effect_for_each_cat(oscar_movies_df)
 
     # Sort the categories by ATE
-    ATE_per_category = dict(
-        sorted(ATE_per_category.items(), key=lambda item: item[1], reverse=True)
+    ate_per_category = dict(
+        sorted(ate_per_category.items(), key=lambda item: item[1], reverse=True)
     )
 
-    for category, ATE in ATE_per_category.items():
-        print(f"Causal effect for category {category}: {ATE}")
+    for category, ate in ate_per_category.items():
+        print(f"Causal effect for category {category}: {ate}")
+
+
+def get_causal_effect_for_new_cat(min_occurences_for_cat: int = 10):
+    oscar_movies_df = load_oscar_movies_new_categories()
+
+    return get_causal_effect_for_each_cat(oscar_movies_df, min_occurences_for_cat)
+
+
+def get_causal_effect_for_base_cat(min_occurences_for_cat: int = 10):
+    oscar_movies_df = load_oscar_movies_all_categories()
+
+    return get_causal_effect_for_each_cat(oscar_movies_df, min_occurences_for_cat)
+
+
+def print_causal_effect_for_base_cat():
+    oscar_movies_df = load_oscar_movies_all_categories()
+
+    print_causal_effect_for_each_cat(oscar_movies_df)
+
+
+def print_causal_effect_for_new_cat():
+    oscar_movies_df = load_oscar_movies_new_categories()
+
+    print_causal_effect_for_each_cat(oscar_movies_df)
