@@ -66,9 +66,11 @@ def perform_statistical_tests():
 
     # Plot the distribution of the sentiment scores in both cases
     plt.hist(before_nomination_flat, bins=200)
+    plt.yscale('log')
     plt.show()
 
     plt.hist(after_nomination_flat, bins=200)
+    plt.yscale('log')
     plt.show()
 
     # List for the pairwise results
@@ -83,8 +85,9 @@ def perform_statistical_tests():
         before = before_nomination[i]['text_compound'].tolist()
         after = after_nomination[i]['text_compound'].tolist()
 
+        # Skip this movie if reviews are missing
         if len(before) == 0 or len(after) == 0:
-            continue  # Skip this movie
+            continue  
 
         movie_id = before_nomination[i]['imdb_id'].tolist()[0]
         winner = before_nomination[i]['winner'].tolist()[0]
