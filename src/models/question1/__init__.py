@@ -4,3 +4,4 @@ from src.models.question1.visualization import *
 from src.models.question1.stats import *
 from src.models.question1.networks import *
 from src.models.question1.category_mapping import *
+from src.models.question1.kmean_categories import *

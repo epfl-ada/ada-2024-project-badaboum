@@ -1,4 +1,9 @@
 import matplotlib.pyplot as plt
+from src.models.question1.kmean_categories import (
+    get_embedded_categories,
+    perform_kmeans,
+    reduce_dim,
+)
 from src.models.question1.datasets_loading import (
     load_oscar_winners_nominees_all_categories,
     load_oscar_winners_nominees_best_pict,
@@ -7,7 +12,6 @@ from src.models.question1.datasets_loading import (
 )
 from src.models.question1.box_office_hit import get_top_box_office_movies
 from src.models.question1.networks import (
-    get_causal_effect_for_each_cat,
     get_causal_effect_for_new_cat,
     get_causal_effect_for_base_cat,
 )
@@ -174,4 +178,48 @@ def plot_ratings_vs_nb_oscars():
     plt.title("Average rating of movies vs number of oscars won")
     plt.xlabel("Number of oscars won")
     plt.ylabel("Average rating")
+    plt.show()
+
+
+# Clustering of categories
+def plot_elbow_curve(sses, optimal_k, k_start: int = 2, k_end: int = 30):
+    k_list = range(k_start, k_end)
+
+    # Plot the sses
+    plt.plot(k_list, sses)
+    plt.xlabel("K")
+    plt.ylabel("Sum of Squared Errors")
+    plt.grid(linestyle="--")
+
+    # Add a point for the optimal k
+    plt.scatter(optimal_k, sses[optimal_k - k_start], c="red")
+    plt.legend(["SSE", "Optimal K"])
+
+    plt.show()
+
+
+def plot_clusters_2d(k: int, min_samples: int = 10):
+    embedded_categories, _ = get_embedded_categories(min_samples)
+    labels = perform_kmeans(embedded_categories, k)
+
+    reduced_dim = reduce_dim(embedded_categories, 2)
+    sns.set_theme(style="darkgrid", rc={"figure.figsize": (11.7, 8.27)})
+    plt.figure(figsize=(10, 8))
+    sns.scatterplot(
+        x=reduced_dim[:, 0], y=reduced_dim[:, 1], hue=labels, palette="tab10"
+    )
+    plt.show()
+
+
+def plot_clusters_3d(k: int, min_samples: int = 10):
+    embedded_categories, _ = get_embedded_categories(min_samples)
+    labels = perform_kmeans(embedded_categories, k)
+
+    reduced_dim = reduce_dim(embedded_categories, 3)
+    sns.set_theme(style="darkgrid", rc={"figure.figsize": (11.7, 8.27)})
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection="3d")
+    scatter = ax.scatter(
+        reduced_dim[:, 0], reduced_dim[:, 1], reduced_dim[:, 2], c=labels, cmap="tab10"
+    )
     plt.show()
