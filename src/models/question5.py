@@ -139,8 +139,8 @@ def plot_proportions():
     # Show the plot
     plt.show()
 
-    plt.bar(x, after_winner_counts, width=0.4, label="After Nomination and won", align='center', alpha=0.7)
-    plt.bar(x, after_looser_counts, width=0.4, label="After Nomination and didn't win", align='edge', alpha=0.7)
+    plt.bar(x, after_winner_counts, width=0.4, label="After the ceremony and won", align='center', alpha=0.7)
+    plt.bar(x, after_looser_counts, width=0.4, label="After the ceremony and didn't win", align='edge', alpha=0.7)
     
     # Add labels and legend
     plt.xticks(x, labels, rotation=45)
