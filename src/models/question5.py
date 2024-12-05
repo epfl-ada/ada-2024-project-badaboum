@@ -68,6 +68,91 @@ def split_compound_score(type_="ceremony"):
         after_scores.append(after_ceremony)
 
     return before_scores, after_scores
+
+def plot_proportions():
+    
+    before_scores, after_scores = split_compound_score(type_="ceremony")
+    before_scores_nomination, after_scores_nomination = split_compound_score(type_="nomination")
+
+    # Flatten the lists 
+    before_flat = [item['text_compound'] for sublist in before_scores for item in sublist.to_dict(orient='records')]
+    after_flat = [item['text_compound'] for sublist in after_scores for item in sublist.to_dict(orient='records')]
+
+    before_nomination_flat = [item['text_compound'] for sublist in before_scores_nomination for item in sublist.to_dict(orient='records')]
+    after_nomination_flat = [item['text_compound'] for sublist in after_scores_nomination for item in sublist.to_dict(orient='records')]
+
+    after_flat_winner = [item['text_compound'] for sublist in after_scores for item in sublist.to_dict(orient='records') if item["winner"]==True]
+    after_flat_looser = [item['text_compound'] for sublist in after_scores for item in sublist.to_dict(orient='records') if item["winner"]==False]
+
+    # Define the bins and labels
+    bins = [-1, -0.8, -0.2, 0.2, 0.8, 1]
+    labels = ["Really Negative", "Negative", "Neutral", "Positive", "Really Positive"]
+    
+    # Bin the scores
+    before_categories = pd.cut(before_flat, bins=bins, labels=labels)
+    after_categories = pd.cut(after_flat, bins=bins, labels=labels)
+
+    before_categories_nomination = pd.cut(before_nomination_flat, bins=bins, labels=labels)
+    after_categories_nomination = pd.cut(after_nomination_flat, bins=bins, labels=labels)
+
+    after_winner_categories = pd.cut(after_flat_winner, bins=bins, labels=labels)
+    after_looser_categories = pd.cut(after_flat_looser, bins=bins, labels=labels)
+
+    # Count the occurrences in each category
+    before_counts = before_categories.value_counts() / len(before_flat)
+    after_counts = after_categories.value_counts() / len(after_flat)
+
+    before_counts_nomination = before_categories_nomination.value_counts() / len(before_nomination_flat)
+    after_counts_nomination = after_categories_nomination.value_counts() / len(after_nomination_flat)
+
+    after_winner_counts = after_winner_categories.value_counts() / len(after_flat_winner)
+    after_looser_counts = after_looser_categories.value_counts() / len(after_flat_looser)
+    
+    # Plot the distributions
+    x = range(len(labels))
+    
+    plt.bar(x, before_counts, width=0.4, label="Before the ceremony", align='center', alpha=0.7)
+    plt.bar(x, after_counts, width=0.4, label="After the ceremony", align='edge', alpha=0.7)
+    
+    # Add labels and legend
+    plt.xticks(x, labels, rotation=45)
+    plt.xlabel("Sentiment Categories")
+    plt.ylabel("Proportion")
+    plt.title("Distribution of Compound Scores Before and After the ceremony")
+    plt.legend()
+    plt.tight_layout()
+    
+    # Show the plot
+    plt.show()
+
+    plt.bar(x, before_counts_nomination, width=0.4, label="Before the nomination", align='center', alpha=0.7)
+    plt.bar(x, after_counts_nomination, width=0.4, label="After the nomination", align='edge', alpha=0.7)
+    
+    # Add labels and legend
+    plt.xticks(x, labels, rotation=45)
+    plt.xlabel("Sentiment Categories")
+    plt.ylabel("Proportion")
+    plt.title("Distribution of Compound Scores Before and After the nomination")
+    plt.legend()
+    plt.tight_layout()
+    
+    # Show the plot
+    plt.show()
+
+    plt.bar(x, after_winner_counts, width=0.4, label="After Nomination and won", align='center', alpha=0.7)
+    plt.bar(x, after_looser_counts, width=0.4, label="After Nomination and didn't win", align='edge', alpha=0.7)
+    
+    # Add labels and legend
+    plt.xticks(x, labels, rotation=45)
+    plt.xlabel("Sentiment Categories")
+    plt.ylabel("Proportion")
+    plt.title("Distribution of Compound Scores After the ceremony for winning and non-winning movies")
+    plt.legend()
+    plt.tight_layout()
+    
+    # Show the plot
+    plt.show()
+
     
 def perform_statistical_test_compound(type_="ceremony"):
     
@@ -164,17 +249,18 @@ def perform_regression_compound(type_score="all", type_date="ceremony"):
     before_nomination_flat = random.sample(before_nomination_flat, target_length) if len(before_nomination_flat) > target_length else before_nomination_flat
     after_nomination_flat = random.sample(after_nomination_flat, target_length) if len(after_nomination_flat) > target_length else after_nomination_flat
 
-    before_nomination = pd.DataFrame(before_nomination_flat)
-    after_nomination = pd.DataFrame(after_nomination_flat)
+    before_nomination_final = pd.DataFrame(before_nomination_flat)
+    after_nomination_final = pd.DataFrame(after_nomination_flat)
 
-    before_nomination["time"] = 0
-    after_nomination["time"] = 1
+    before_nomination_final["time"] = 0
+    after_nomination_final["time"] = 1
 
-    final_df = pd.concat([before_nomination, after_nomination])
+    final_df = pd.concat([before_nomination_final, after_nomination_final])
 
     final_df = final_df.rename(columns={0: "compound"})
 
-    sns.stripplot(x='time', y='compound', data=final_df, jitter=0.2, alpha=0.7)
+
+    sns.stripplot(x='time', y='compound', data=final_df, jitter=0.2, alpha=0.5)
 
     # Independent variable (time) and dependent variable (score)
     X = final_df['time']
@@ -191,6 +277,7 @@ def perform_regression_compound(type_score="all", type_date="ceremony"):
 
     return final_df
 
+#def perform_distribution_analysis():
 
 def prepare_data(df, imdb_id, nomination_date, ceremony_date, type_="both"):
 
@@ -321,9 +408,28 @@ def plot_oscar_bump_all_movies():
     daily_mean_coumpounds = combined_compounds.groupby(combined_compounds.index).mean()
     daily_mean_counts = combined_counts.groupby(combined_counts.index).mean()
 
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from scipy.stats import linregress
+    
+    # Example daily_mean_compounds data
+    # daily_mean_coumpounds is assumed to be a pandas Series with index as the time variable
+    x = daily_mean_coumpounds.index  # Time (relative to ceremony date)
+    y = daily_mean_coumpounds.values  # Mean sentiment scores
+    
+    # Fit a linear regression model
+    slope, intercept, r_value, p_value, std_err = linregress(x, y)
+    
+    # Generate the regression line
+    regression_line = intercept + slope * x
+
     # Plot the overall mean for the compound score and the number of reviews
     plt.figure(figsize=(10, 5))
     plt.plot(daily_mean_coumpounds, label='Combined Mean Sentiment')
+
+    # Plot the regression line
+    plt.plot(x, regression_line, color='red', linestyle='--')
+    
     plt.title('Mean of All Movie Sentiment Scores')
     plt.xlabel('Time')
     plt.ylabel('Mean Sentiment Score')
