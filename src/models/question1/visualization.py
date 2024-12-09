@@ -208,6 +208,7 @@ def plot_clusters_2d(k: int, min_samples: int = 10):
     sns.scatterplot(
         x=reduced_dim[:, 0], y=reduced_dim[:, 1], hue=labels, palette="tab10"
     )
+    plt.title("Clusters of categories")
     plt.show()
 
 
@@ -222,4 +223,5 @@ def plot_clusters_3d(k: int, min_samples: int = 10):
     scatter = ax.scatter(
         reduced_dim[:, 0], reduced_dim[:, 1], reduced_dim[:, 2], c=labels, cmap="tab10"
     )
+    plt.title("Clusters of categories")
     plt.show()
