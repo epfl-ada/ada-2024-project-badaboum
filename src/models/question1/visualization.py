@@ -199,7 +199,7 @@ def plot_elbow_curve(sses, optimal_k, k_start: int = 2, k_end: int = 30):
 
 
 def plot_clusters_2d(k: int, min_samples: int = 10):
-    embedded_categories, _ = get_embedded_categories(min_samples)
+    embedded_categories, categories = get_embedded_categories(min_samples)
     labels = perform_kmeans(embedded_categories, k)
 
     reduced_dim = reduce_dim(embedded_categories, 2)
@@ -208,7 +208,15 @@ def plot_clusters_2d(k: int, min_samples: int = 10):
     sns.scatterplot(
         x=reduced_dim[:, 0], y=reduced_dim[:, 1], hue=labels, palette="tab10"
     )
-    plt.title("Clusters of categories")
+    plt.title("Clusters of categories (PCA 2D)")
+
+    for i, text in enumerate(categories):
+        # Dont saturate the image:
+        if i % 3 == 0:
+            plt.annotate(
+                text, (reduced_dim[i, 0], reduced_dim[i, 1]), fontsize=8, alpha=0.8
+            )
+
     plt.show()
 
 
@@ -223,5 +231,5 @@ def plot_clusters_3d(k: int, min_samples: int = 10):
     scatter = ax.scatter(
         reduced_dim[:, 0], reduced_dim[:, 1], reduced_dim[:, 2], c=labels, cmap="tab10"
     )
-    plt.title("Clusters of categories")
+    plt.title("Clusters of categories (PCA 3D)")
     plt.show()
