@@ -47,9 +47,7 @@ def plot_distribution(feature: str, top_n: int = None):
         feature (str): Column name to analyze (e.g., 'IMDB_genres', 'countries').
         top_n (int, optional): Number of top categories to include. If None, include all.
     """
-    # Load the data
     nominees, non_nominees = load_data()
-
     nominee_distribution = calculate_distribution(nominees[feature])
     non_nominee_distribution = calculate_distribution(non_nominees[feature])
 
@@ -117,9 +115,7 @@ def plot_bias(feature: str, top_n: int = None):
         feature (str): Column name to analyze (e.g., 'IMDB_genres', 'countries').
         top_n (int, optional): Number of top categories to include. If None, include all.
     """
-    # Load the data
     nominees, non_nominees = load_data()
-
     nominee_distribution = calculate_distribution(nominees[feature])
     non_nominee_distribution = calculate_distribution(non_nominees[feature])
 
@@ -226,73 +222,4 @@ def plot_runtime_distribution():
     plt.xlabel("Category")
     plt.ylabel("Runtime (minutes)")
     plt.title("Runtime Distribution (Without Outliers): nominees vs. Non-nominees")
-    plt.show()
-
-
-def plot_top_country_distribution(top_n=10):
-    # Load data
-    nominees, non_nominees = load_data()
-
-    nominee_country_distribution = calculate_distribution(nominees["countries"])
-    non_nominee_country_distribution = calculate_distribution(non_nominees["countries"])
-
-    # Combine distributions and find top `n` countries
-    all_countries = set(nominee_country_distribution.keys()).union(
-        set(non_nominee_country_distribution.keys())
-    )
-    combined_distribution = {
-        country: nominee_country_distribution.get(country, 0)
-        + non_nominee_country_distribution.get(country, 0)
-        for country in all_countries
-    }
-
-    top_countries = sorted(
-        combined_distribution.keys(),
-        key=lambda x: combined_distribution[x],
-        reverse=True,
-    )[:top_n]
-
-    # Aggregate remaining countries into "Others"
-    def aggregate_top_countries(distribution, top_countries):
-        aggregated_distribution = {
-            country: distribution.get(country, 0) for country in top_countries
-        }
-        others = sum(
-            value
-            for country, value in distribution.items()
-            if country not in top_countries
-        )
-        aggregated_distribution["Others"] = others
-        return aggregated_distribution
-
-    nominee_top_distribution = aggregate_top_countries(
-        nominee_country_distribution, top_countries
-    )
-    non_nominee_top_distribution = aggregate_top_countries(
-        non_nominee_country_distribution, top_countries
-    )
-
-    # Plot side-by-side bars for the top countries
-    all_countries_top = list(nominee_top_distribution.keys())
-    x = np.arange(len(all_countries_top))  # the label locations
-    width = 0.35  # the width of the bars
-
-    plt.figure(figsize=(10, 6))
-    plt.bar(
-        x - width / 2,
-        nominee_top_distribution.values(),
-        width,
-        label="nominees",
-    )
-    plt.bar(
-        x + width / 2,
-        non_nominee_top_distribution.values(),
-        width,
-        label="Non-nominees",
-    )
-    plt.xlabel("Countries")
-    plt.ylabel("Proportion")
-    plt.title(f"Top {top_n} Country Distribution: nominees vs. Non-nominees")
-    plt.legend()
-    plt.xticks(x, all_countries_top, rotation=90)
     plt.show()
