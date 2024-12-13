@@ -165,4 +165,4 @@ The other tasks were distributed as evenly as possible, based on the workload of
 - Quentin: 2. Ratings Over Time: Do Oscar Winners "Age Well"? and 4. The Oscar Bump: Rating and Review Increases Post-Win
 - Matya: 3. Impact of High-Profile Actors/Directors on Oscar Wins
 - Camille: 5. Oscars jury vs Audience biases
-- Sophia: Data Processing and Data story
+- Sophia: Problem formulation, Data Processing and Data story
