@@ -39,6 +39,76 @@ def calculate_distribution(feature_list):
     return {item: count / total for item, count in item_counts.items()}
 
 
+def plot_distribution(feature: str, top_n: int = None):
+    """
+    Generic function to plot the distribution of a specified feature.
+
+    Args:
+        feature (str): Column name to analyze (e.g., 'IMDB_genres', 'countries').
+        top_n (int, optional): Number of top categories to include. If None, include all.
+    """
+    # Load the data
+    nominees, non_nominees = load_data()
+
+    nominee_distribution = calculate_distribution(nominees[feature])
+    non_nominee_distribution = calculate_distribution(non_nominees[feature])
+
+    # Align categories by creating a union of all keys
+    all_items = set(nominee_distribution.keys()).union(
+        set(non_nominee_distribution.keys())
+    )
+    aligned_nominee_distribution = {
+        item: nominee_distribution.get(item, 0) for item in all_items
+    }
+    aligned_non_nominee_distribution = {
+        item: non_nominee_distribution.get(item, 0) for item in all_items
+    }
+
+    # Optionally limit to top `n` categories
+    if top_n:
+        combined_distribution = {
+            item: aligned_nominee_distribution[item]
+            + aligned_non_nominee_distribution[item]
+            for item in all_items
+        }
+        top_items = sorted(
+            combined_distribution.keys(),
+            key=lambda x: combined_distribution[x],
+            reverse=True,
+        )[:top_n]
+        aligned_nominee_distribution = {
+            item: aligned_nominee_distribution[item] for item in top_items
+        }
+        aligned_non_nominee_distribution = {
+            item: aligned_non_nominee_distribution[item] for item in top_items
+        }
+        all_items = top_items
+
+    # Plot side-by-side bars for the feature distribution
+    x = np.arange(len(all_items))  # the label locations
+    width = 0.35  # the width of the bars
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(
+        x - width / 2,
+        aligned_nominee_distribution.values(),
+        width,
+        label="nominees",
+    )
+    plt.bar(
+        x + width / 2,
+        aligned_non_nominee_distribution.values(),
+        width,
+        label="Non-nominees",
+    )
+    plt.xlabel(feature.capitalize())
+    plt.ylabel("Proportion")
+    plt.title(f"{feature.capitalize()}: nominees vs. Non-nominees")
+    plt.legend()
+    plt.xticks(x, all_items, rotation=90)
+    plt.show()
+
+
 def plot_bias(feature: str, top_n: int = None):
     """
     Generic function to calculate and plot bias factors for a specified feature.
@@ -103,52 +173,6 @@ def plot_bias(feature: str, top_n: int = None):
     # Print sorted bias factors for detailed inspection
     for item in sorted_items:
         print(f"{item}: {bias_factors[item]:.2f}")
-
-
-def plot_genre_distribution():
-
-    # Load the data
-    nominees, non_nominees = load_data()
-
-    nominee_genre_distribution = calculate_distribution(nominees["IMDB_genres"])
-    non_nominee_genre_distribution = calculate_distribution(non_nominees["IMDB_genres"])
-
-    # Align genres between nominee and non-nominee distributions
-    all_genres = set(nominee_genre_distribution.keys()).union(
-        set(non_nominee_genre_distribution.keys())
-    )
-
-    # Create aligned genre distributions with 0 for missing genres
-    aligned_nominee_genre_distribution = {
-        genre: nominee_genre_distribution.get(genre, 0) for genre in all_genres
-    }
-    aligned_non_nominee_genre_distribution = {
-        genre: non_nominee_genre_distribution.get(genre, 0) for genre in all_genres
-    }
-
-    # Plotting side-by-side bars for genre distribution
-    x = np.arange(len(all_genres))  # the label locations
-    width = 0.35  # the width of the bars
-
-    plt.figure(figsize=(10, 6))
-    plt.bar(
-        x - width / 2,
-        aligned_nominee_genre_distribution.values(),
-        width,
-        label="nominees",
-    )
-    plt.bar(
-        x + width / 2,
-        aligned_non_nominee_genre_distribution.values(),
-        width,
-        label="Non-nominees",
-    )
-    plt.xlabel("Genres")
-    plt.ylabel("Proportion")
-    plt.title("Genre Distribution: nominees vs. Non-nominees")
-    plt.legend()
-    plt.xticks(x, all_genres, rotation=90)
-    plt.show()
 
 
 def ols(feature: str = "IMDB_genres"):
