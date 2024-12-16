@@ -8,6 +8,34 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import random
 
+def plot_compound_distribution(type_="ceremony"):
+
+    # Get the reviews already splitted
+    before, after = split_compound_score(type_="ceremony")
+
+    if(type_== "nomination"):
+        before, after = split_compound_score(type_="nomination")
+    
+    # Flatten the lists for the test
+    before_flat = [item['text_compound'] for sublist in before for item in sublist.to_dict(orient='records')]
+    after_flat = [item['text_compound'] for sublist in after for item in sublist.to_dict(orient='records')]
+
+    # Plot the distribution of the sentiment scores in both cases
+    plt.hist(before_flat, bins=200)
+    plt.yscale('log')
+    plt.xlabel("compound score")
+    plt.ylabel("number of reviews")
+    plt.title(f"Compound Score Distribution before the {type_}" )
+    plt.show()
+
+    plt.hist(after_flat, bins=200)
+    plt.yscale('log')
+    plt.xlabel("compound score")
+    plt.ylabel("number of reviews")
+    plt.title(f"Compound Score Distribution after the {type_}" )
+    plt.show()
+
+
 def plot_oscar_bump_unique_movie(imdb_id,type_):
     
     # Get the data
@@ -100,16 +128,16 @@ def plot_oscar_bump_all_movies():
     # Plot the regression line
     plt.plot(x, regression_line, color='red', linestyle='--')
     
-    plt.title('Mean of All Movie Sentiment Scores')
-    plt.xlabel('Time')
+    plt.title('Mean of All Movie Sentiment Scores around the Ceremony Date')
+    plt.xlabel('Time (Days)')
     plt.ylabel('Mean Sentiment Score')
     plt.legend()
     plt.show()
 
     plt.figure(figsize=(10, 5))
     plt.plot(daily_mean_counts, label='Combined Mean Number Of Reviews')
-    plt.title('Count of All Movie Sentiment Reviews')
-    plt.xlabel('Time')
+    plt.title('Count of All Movie Reviews around the Ceremony Date')
+    plt.xlabel('Time (Days)')
     plt.ylabel('Mean Number Of Reviews')
     plt.legend()
     plt.show()

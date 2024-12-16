@@ -48,7 +48,7 @@ def prepare_data(df, imdb_id, nomination_date, ceremony_date, type_="both"):
     elif(type_ == "ceremony"):
         first_date = ceremony_date
     
-    # Filter only around the oscar bumpy
+    # Filter only around the oscar bump
     filtered_reviews = df.loc[
     (df['imdb_id'] == imdb_id)
     & (df['date'] >= first_date - pd.DateOffset(months=2))

@@ -9,46 +9,44 @@ import statsmodels.api as sm
 def perform_regression_compound(type_score="all", type_date="ceremony"):
     
     # Get the reviews already splitted
-    before_nomination, after_nomination = split_compound_score(type_="ceremony")
+    before, after = split_compound_score(type_="ceremony")
 
     if(type_date == "nomination"):
         
-        before_nomination, after_nomination = split_compound_score(type_="nomination")
+        before, after = split_compound_score(type_="nomination")
         
-    before_nomination_flat = [item['text_compound'] for sublist in before_nomination for item in sublist.to_dict(orient='records')]
-    after_nomination_flat = [item['text_compound'] for sublist in after_nomination for item in sublist.to_dict(orient='records')]
+    before_flat = [item['text_compound'] for sublist in before for item in sublist.to_dict(orient='records')]
+    after_flat = [item['text_compound'] for sublist in after for item in sublist.to_dict(orient='records')]
 
     if(type_score=="positive"):
         
-        before_nomination_flat = [item['text_compound'] for sublist in before_nomination for item in sublist.to_dict(orient='records') if 
+        before_flat = [item['text_compound'] for sublist in before for item in sublist.to_dict(orient='records') if 
                               item['text_compound'] >= 0]
-        after_nomination_flat = [item['text_compound'] for sublist in after_nomination for item in sublist.to_dict(orient='records') if
+        after_flat = [item['text_compound'] for sublist in after for item in sublist.to_dict(orient='records') if
                                  item['text_compound'] >= 0]
     elif(type_score=="negative"):
 
-        before_nomination_flat = [item['text_compound'] for sublist in before_nomination for item in sublist.to_dict(orient='records') if 
+        before_flat = [item['text_compound'] for sublist in before for item in sublist.to_dict(orient='records') if 
                               item['text_compound'] <= 0]
-        after_nomination_flat = [item['text_compound'] for sublist in after_nomination for item in sublist.to_dict(orient='records') if
+        after_flat = [item['text_compound'] for sublist in after for item in sublist.to_dict(orient='records') if
                                  item['text_compound'] <= 0]
 
     # Find the target length (length of the shorter list)
-    target_length = min(len(before_nomination_flat), len(after_nomination_flat))
+    target_length = min(len(before_flat), len(after_flat))
 
     # Randomly sample the longer list and keep the shorter list as is
-    before_nomination_flat = random.sample(before_nomination_flat, target_length) if len(before_nomination_flat) > target_length else before_nomination_flat
-    after_nomination_flat = random.sample(after_nomination_flat, target_length) if len(after_nomination_flat) > target_length else after_nomination_flat
+    before_flat = random.sample(before_flat, target_length) if len(before_flat) > target_length else before_flat
+    after_flat = random.sample(after_flat, target_length) if len(after_flat) > target_length else after_flat
 
-    before_nomination_final = pd.DataFrame(before_nomination_flat)
-    after_nomination_final = pd.DataFrame(after_nomination_flat)
+    before_final = pd.DataFrame(before_flat)
+    after_final = pd.DataFrame(after_flat)
 
-    before_nomination_final["time"] = 0
-    after_nomination_final["time"] = 1
+    before_final["time"] = 0
+    after_final["time"] = 1
 
-    final_df = pd.concat([before_nomination_final, after_nomination_final])
+    final_df = pd.concat([before_final, after_final])
 
     final_df = final_df.rename(columns={0: "compound"})
-
-    sns.stripplot(x='time', y='compound', data=final_df, jitter=0.2, alpha=0.5)
 
     # Independent variable (time) and dependent variable (score)
     X = final_df['time']
@@ -63,30 +61,23 @@ def perform_regression_compound(type_score="all", type_date="ceremony"):
     # Print the summary
     print(model.summary())
 
+    sns.stripplot(x='time', y='compound', data=final_df, jitter=0.2, alpha=0.4)
+    plt.show()
+
     return final_df
 
 
 def perform_statistical_test_compound(type_="ceremony"):
     
     # Get the reviews already splitted
-    before_nomination, after_nomination = split_compound_score(type_="ceremony")
+    before, after = split_compound_score(type_="ceremony")
 
     if(type_== "nomination"):
-        before_nomination, after_nomination = split_compound_score(type_="nomination")
+        before, after = split_compound_score(type_="nomination")
     
     # Flatten the lists for the test
-    before_nomination_flat = [item['text_compound'] for sublist in before_nomination for item in sublist.to_dict(orient='records')]
-    after_nomination_flat = [item['text_compound'] for sublist in after_nomination for item in sublist.to_dict(orient='records')]
-
-
-    # Plot the distribution of the sentiment scores in both cases
-    plt.hist(before_nomination_flat, bins=200)
-    plt.yscale('log')
-    plt.show()
-
-    plt.hist(after_nomination_flat, bins=200)
-    plt.yscale('log')
-    plt.show()
+    before_flat = [item['text_compound'] for sublist in before for item in sublist.to_dict(orient='records')]
+    after_flat = [item['text_compound'] for sublist in after for item in sublist.to_dict(orient='records')]
 
     # List for the pairwise results
     results = []
@@ -94,26 +85,26 @@ def perform_statistical_test_compound(type_="ceremony"):
     # Number of tested movies
     count = 0
     
-    for i in range(0,len(before_nomination)):
+    for i in range(0,len(before)):
 
         # Get the reviews for one specific movie
-        before = before_nomination[i]['text_compound'].tolist()
-        after = after_nomination[i]['text_compound'].tolist()
+        before_curr = before[i]['text_compound'].tolist()
+        after_curr = after[i]['text_compound'].tolist()
 
         # Skip this movie if reviews are missing
-        if len(before) == 0 or len(after) == 0:
+        if len(before_curr) == 0 or len(after_curr) == 0:
             continue  
 
-        movie_id = before_nomination[i]['imdb_id'].tolist()[0]
-        winner = before_nomination[i]['winner'].tolist()[0]
+        movie_id = before[i]['imdb_id'].tolist()[0]
+        winner = before[i]['winner'].tolist()[0]
         
         # Truncate both lists to the length of the shorter one
-        min_length = min(len(before), len(after))
-        before = before[:min_length]
-        after = after[:min_length]
+        min_length = min(len(before_curr), len(after_curr))
+        before_curr = before_curr[:min_length]
+        after_curr = after_curr[:min_length]
         
         # Perform the Wilcoxon test (with reviews specific to one movie)
-        stat, p = wilcoxon(before, after)
+        stat, p = wilcoxon(before_curr, after_curr)
         results.append({'Movie ID': movie_id, 'Winner': winner , 'p-value': p})
 
     results_df = pd.DataFrame(results)

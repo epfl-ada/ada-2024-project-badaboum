@@ -30,4 +30,18 @@ def get_data():
     # Add the nomination date of the movie to the review
     reviews = reviews.join(oscar_nomination_dates.set_index('oscar_year'), on='oscar_year')
 
-    return reviews
+    # Convert ceremony_date and nomination_date to datetime
+    reviews['ceremony_date'] = pd.to_datetime(reviews['ceremony_date'])
+    reviews['nomination_date'] = pd.to_datetime(reviews['nomination_date'])
+
+    # Calculate date range
+    reviews['lower_bound'] = reviews['nomination_date'] - pd.DateOffset(months=2)
+    reviews['upper_bound'] = reviews['ceremony_date'] + pd.DateOffset(months=2)
+
+    # Filter reviews within the date range
+    filtered_reviews = reviews[
+        (reviews['date'] >= reviews['lower_bound']) & 
+        (reviews['date'] <= reviews['upper_bound'])
+    ]
+
+    return filtered_reviews
