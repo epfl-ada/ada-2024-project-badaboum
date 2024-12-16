@@ -220,7 +220,7 @@ def plot_top_directors_interactive(director_revenue_year, k):
         ),
     )
     
-    fig.write_html("director_interactive.html")
+    #fig.write_html("director_interactive.html")
     fig.show()
 
 
