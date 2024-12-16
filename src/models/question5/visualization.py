@@ -226,3 +226,96 @@ def plot_proportions():
     
     # Show the plot
     plt.show()
+
+
+def plot_proportions_change():
+    before_scores, after_scores = split_compound_score(type_="ceremony")
+    before_scores_nomination, after_scores_nomination = split_compound_score(type_="nomination")
+
+    # Flatten the lists 
+    before_flat = [item['text_compound'] for sublist in before_scores for item in sublist.to_dict(orient='records')]
+    after_flat = [item['text_compound'] for sublist in after_scores for item in sublist.to_dict(orient='records')]
+
+    before_nomination_flat = [item['text_compound'] for sublist in before_scores_nomination for item in sublist.to_dict(orient='records')]
+    after_nomination_flat = [item['text_compound'] for sublist in after_scores_nomination for item in sublist.to_dict(orient='records')]
+
+    after_flat_winner = [item['text_compound'] for sublist in after_scores for item in sublist.to_dict(orient='records') if item["winner"]==True]
+    after_flat_looser = [item['text_compound'] for sublist in after_scores for item in sublist.to_dict(orient='records') if item["winner"]==False]
+
+    # Define the bins and labels
+    bins = [-1, -0.8, -0.2, 0.2, 0.8, 1]
+    labels = ["Really Negative", "Negative", "Neutral", "Positive", "Really Positive"]
+    
+    # Bin the scores
+    before_categories = pd.cut(before_flat, bins=bins, labels=labels)
+    after_categories = pd.cut(after_flat, bins=bins, labels=labels)
+
+    before_categories_nomination = pd.cut(before_nomination_flat, bins=bins, labels=labels)
+    after_categories_nomination = pd.cut(after_nomination_flat, bins=bins, labels=labels)
+
+    after_winner_categories = pd.cut(after_flat_winner, bins=bins, labels=labels)
+    after_looser_categories = pd.cut(after_flat_looser, bins=bins, labels=labels)
+
+    # Count the occurrences in each category
+    before_counts = before_categories.value_counts() / len(before_flat)
+    after_counts = after_categories.value_counts() / len(after_flat)
+
+    before_counts_nomination = before_categories_nomination.value_counts() / len(before_nomination_flat)
+    after_counts_nomination = after_categories_nomination.value_counts() / len(after_nomination_flat)
+
+    after_winner_counts = after_winner_categories.value_counts() / len(after_flat_winner)
+    after_looser_counts = after_looser_categories.value_counts() / len(after_flat_looser)
+    
+    # Calculate the change in distribution (before vs after)
+    change_ceremony = after_counts - before_counts
+    change_nomination = after_counts_nomination - before_counts_nomination
+    change_winner = after_winner_counts - after_looser_counts
+
+    # Plot the change in distributions
+    x = range(len(labels))
+    
+    # Plot the change for the ceremony
+    plt.bar(x, change_ceremony, width=0.4, label="Change After Ceremony", align='center', alpha=0.7, color="b")
+    plt.axhline(0, color='black',linewidth=1)  # add a horizontal line at 0 for reference
+    
+    # Add labels and legend
+    plt.xticks(x, labels, rotation=45)
+    plt.xlabel("Sentiment Categories")
+    plt.ylabel("Change in Proportion")
+    plt.title("Change in Compound Scores Distribution After the Ceremony")
+    plt.legend()
+    plt.tight_layout()
+    
+    # Show the plot for the ceremony
+    plt.show()
+
+    # Plot the change for the nomination
+    plt.bar(x, change_nomination, width=0.4, label="Change After Nomination", align='center', alpha=0.7, color="g")
+    plt.axhline(0, color='black',linewidth=1)  # add a horizontal line at 0 for reference
+    
+    # Add labels and legend
+    plt.xticks(x, labels, rotation=45)
+    plt.xlabel("Sentiment Categories")
+    plt.ylabel("Change in Proportion")
+    plt.title("Change in Compound Scores Distribution After the Nomination")
+    plt.legend()
+    plt.tight_layout()
+    
+    # Show the plot for the nomination
+    plt.show()
+
+    # Plot the change for the nomination
+    plt.bar(x, change_winner, width=0.4, label="Change for a Winner compared to a Looser", align='center', alpha=0.7, color="r")
+    plt.axhline(0, color='black',linewidth=1)  # add a horizontal line at 0 for reference
+    
+    # Add labels and legend
+    plt.xticks(x, labels, rotation=45)
+    plt.xlabel("Sentiment Categories")
+    plt.ylabel("Change in Proportion")
+    plt.title("Change in Compound Scores Distribution After Ceremony: Winners vs. Losers")
+    plt.legend()
+    plt.tight_layout()
+    
+    # Show the plot for the nomination
+    plt.show()
+

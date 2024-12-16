@@ -60,10 +60,7 @@ def perform_regression_compound(type_score="all", type_date="ceremony"):
 
     # Print the summary
     print(model.summary())
-
-    sns.stripplot(x='time', y='compound', data=final_df, jitter=0.2, alpha=0.4)
-    plt.show()
-
+    
     return final_df
 
 
