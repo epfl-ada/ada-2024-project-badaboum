@@ -32,23 +32,6 @@ def plot_compound_scores_global(type_1, type_2):
     # Select the data
     df_1, df_2 = select_visualization_groups(type_1, type_2)
 
-    ax = sns.scatterplot(data=df_1, x="relative_date", y="text_compound", label = type_1)
-    sns.scatterplot(data=df_2, x="relative_date", y="text_compound", label = type_2)
-
-    # Add a title and axis labels
-    ax.set_title("Scatterplot of Relative Date vs. Sentiment Score", fontsize=16)
-    ax.set_xlabel("Relative Date (Days)", fontsize=14)
-    ax.set_ylabel("Sentiment Score (Compound)", fontsize=14)
-
-    # Add a legend outside the plot
-    plt.legend(loc='upper left', bbox_to_anchor=(1.05, 1), title="Review Types")
-    
-    # Adjust the layout to make space for the legend
-    plt.tight_layout()
-
-    # Show the plot
-    plt.show()
-
     ax = sns.kdeplot(data=df_1[["relative_date", "text_compound"]], x="relative_date", label = type_1)
     sns.kdeplot(data=df_2[["relative_date", "text_compound"]], x="relative_date", label = type_2)
 
