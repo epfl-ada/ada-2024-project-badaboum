@@ -4,6 +4,7 @@ from collections import Counter
 import pandas as pd
 from ..utils.data_parsing import parse_str_to_list
 import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
 def load_data():
@@ -171,6 +172,44 @@ def plot_bias(feature: str, top_n: int = None):
         print(f"{item}: {bias_factors[item]:.2f}")
 
 
+def correlation(feature: str = "IMDB_genres"):
+    """
+    Calculate the correlation between the nominated category and the specified feature.
+    """
+    # Load the data
+    nominees, non_nominees = load_data()
+
+    # Add "nominated" column to oscar_movies and drop "winner" column
+    nominees["nominated"] = True
+    nominees = nominees.drop(columns=["winner"])
+
+    # Add "nominated" column to all_other_movies with False
+    non_nominees["nominated"] = False
+
+    # Combine both dataframes
+    data = pd.concat([nominees, non_nominees], ignore_index=True)
+
+    # One hot encode genres
+    X_genres = data[feature].explode()
+    X_genres = pd.get_dummies(X_genres).groupby(level=0).sum()
+    y_genres = data["nominated"]  # Target
+
+    # Calculate the correlation matrix
+    correlation_matrix = X_genres.corrwith(y_genres)
+
+    # Visualize the correlation matrix
+    plt.figure(figsize=(10, 6))
+    correlation_matrix.plot(kind="bar", color="skyblue")
+
+    plt.title("Correlation between Genres and Nomination")
+    plt.ylabel("Correlation")
+    plt.xlabel("Genre")
+    plt.xticks(rotation=90)
+    plt.show()
+
+    return correlation_matrix
+
+
 def ols(feature: str = "IMDB_genres"):
     # target is nominated
     # genres are the predictors
@@ -200,7 +239,51 @@ def ols(feature: str = "IMDB_genres"):
 
     # Summary of the genre-focused OLS model
     ols_summary_genres = ols_model_genres.summary()
+
+    # Visualize coefficients and p-values
+    plt.figure(figsize=(10, 6))
+    # Sort the coefficients by value
+    ols_model_genres.params[1:] = ols_model_genres.params[1:].sort_values()
+    ols_model_genres.params[1:].plot(kind="bar", color="skyblue")
+
+    plt.title("OLS Model Coefficients: Genres")
+    plt.ylabel("Coefficient")
+    plt.xlabel("Genre")
+    plt.xticks(rotation=90)
+    plt.show()
+
     return ols_summary_genres
+
+
+def vif(feature: str = "IMDB_genres"):
+    """
+    Calculate the Variance Inflation Factor (VIF) for the feature.
+    """
+    # Load the data
+    nominees, non_nominees = load_data()
+
+    # Add "nominated" column to oscar_movies and drop "winner" column
+    nominees["nominated"] = True
+    nominees = nominees.drop(columns=["winner"])
+
+    # Add "nominated" column to all_other_movies with False
+    non_nominees["nominated"] = False
+
+    # Combine both dataframes
+    data = pd.concat([nominees, non_nominees], ignore_index=True)
+
+    # One hot encode genres
+    X_genres = data[feature].explode()
+    X_genres = pd.get_dummies(X_genres).groupby(level=0).sum()
+
+    # Calculate the Variance Inflation Factor (VIF)
+    vif_genres = pd.DataFrame()
+    vif_genres["feature"] = X_genres.columns
+    vif_genres["VIF"] = [
+        variance_inflation_factor(X_genres.values, i) for i in range(X_genres.shape[1])
+    ]
+
+    return vif_genres
 
 
 def plot_runtime_distribution():
