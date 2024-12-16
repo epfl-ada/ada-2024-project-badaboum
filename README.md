@@ -1,5 +1,7 @@
 
 # Oscar or Flopscar: Do the Academy Awards Reflect Audience Taste?
+## Link to the datastory
+[Datastory](https://epfl-badaboum.github.io/website/)
 
 ## Quickstart
 
