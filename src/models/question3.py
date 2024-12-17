@@ -176,18 +176,13 @@ def compute_profile_score(df):
     return first_year, last_year, director_revenue_year
 
 
-def plot_top_director(df, k):
-
-    top_actors = df.sort_values(by='profile_score', ascending=False).head(k)
-    #display name of x-axis
-    top_actors.set_index('primaryName', inplace=True)
-    top_actors.plot(kind='bar', color='skyblue', alpha=0.8, edgecolor='black')
-    plt.title(f"Top {k} Actors")
-    plt.xlabel("Actors")
-    plt.ylabel("High profile score")
+def plot_top_directors(director_revenue_year, year, k):
+    df = director_revenue_year[year].sort_values(ascending=False).head(k)
+    df.plot(kind='bar', title=f'Top {k} directors in {year}')
+    plt.xlabel('Director')
+    plt.ylabel('High profile score')
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
-    #plt.savefig('./plot/top_directors.png')
     plt.show()
 
 
@@ -202,7 +197,6 @@ def plot_top_actors(df_actor, k):
     plt.ylabel("High profile score")
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
-    #plt.savefig('./plot/top_actors.png')
     plt.show()
 
 
@@ -266,7 +260,6 @@ def plot_top_directors_interactive(director_revenue_year, k):
         ),
     )
     
-    fig.write_html("./plot/director_interactive.html")
     fig.show()
 
 
@@ -326,7 +319,6 @@ def plot_winner_position(df):
     plt.xlabel('Position')
     plt.ylabel('Count')
     plt.legend(loc='upper right')
-    #plt.savefig('./plot/winner_position.png')
     plt.show()
 
     return winner_position_profile, winner_position_rating
@@ -428,7 +420,6 @@ def match_and_plot(df):
     _, pval = ttest_ind(won_balanced['averageRating'].values, lost_balanced['averageRating'].values)
     print(f'p-value: {pval}')
     plt.title('Average Rating Distribution of Winners and other nominees (directors)')
-    #plt.savefig('./plot/match_and_plot.png')
     plt.show()
 
 
@@ -462,7 +453,6 @@ def count_won_oscar(df, k):
     plt.xticks(rotation=45, ha='right')
     plt.yticks(range(0, 3))
     plt.tight_layout()
-    #plt.savefig('./plot/count_won_oscar.png')
     plt.show()
 
 
@@ -500,7 +490,6 @@ def count_won_oscar_actor(df, k):
     plt.xticks(rotation=45, ha='right')
     plt.yticks(range(0, 4))
     plt.tight_layout()
-    #plt.savefig('./plot/count_won_oscar_actor.png')
     plt.show()
 
 
@@ -534,7 +523,6 @@ def plot_winner_position_actors(df, first_year, last_year):
     plt.xlabel('Position')
     plt.ylabel('Count')
     plt.legend(loc='upper right')
-    #plt.savefig('./plot/winner_position_actors.png')
     plt.show()
 
     return winner_position_profile, winner_position_rating
@@ -608,7 +596,6 @@ def match_and_plot_actor(df):
     _, pval = ttest_ind(won_balanced['averageRating'].values, lost_balanced['averageRating'].values)
     print(f'p-value: {pval}')
     plt.title('Average Rating Distribution of Winners and other nominees (actors)')
-    plt.savefig('./plot/match_and_plot_actor.png')
     plt.show()
 
 
@@ -681,7 +668,6 @@ def match_and_plot_nominated(df):
     _, pval = ttest_ind(won_balanced['averageRating'].values, lost_balanced['averageRating'].values)
     print(f'p-value: {pval}')
     plt.title('Average Rating Distribution of nominated and not nominated movies (director)')
-    #plt.savefig('./plot/match_and_plot_nominated.png')
     plt.show()
 
 
@@ -752,7 +738,6 @@ def match_and_plot_nominated_actor(df):
     _, pval = ttest_ind(won_balanced['averageRating'].values, lost_balanced['averageRating'].values)
     print(f'p-value: {pval}')
     plt.title('Average Rating Distribution of nominated and not nominated movies (actor)')
-    #plt.savefig('./plot/match_and_plot_nominated_oscar.png')
     plt.show()
 
 
