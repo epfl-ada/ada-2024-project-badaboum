@@ -7,6 +7,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import random
+import scipy.stats as stats
 
 def plot_compound_distribution(type_="ceremony"):
 
@@ -21,19 +22,16 @@ def plot_compound_distribution(type_="ceremony"):
     after_flat = [item['text_compound'] for sublist in after for item in sublist.to_dict(orient='records')]
 
     # Plot the distribution of the sentiment scores in both cases
-    plt.hist(before_flat, bins=200)
+    sns.kdeplot(before_flat, color='red', linewidth=2, log_scale=(False, True), bw_adjust=0.5, clip=(-1, 1), label = 'Before')
+    sns.kdeplot(after_flat, color='green', linewidth=2, log_scale=(False, True), bw_adjust=0.5, clip=(-1, 1), label = 'After')
+    plt.legend()
     plt.yscale('log')
-    plt.xlabel("compound score")
-    plt.ylabel("number of reviews")
-    plt.title(f"Compound Score Distribution before the {type_}" )
+    plt.xlabel("Compound score")
+    plt.ylabel("Number of reviews (log scale)")
+    plt.title(f"Compound Score Distribution before and after the {type_}" )
     plt.show()
 
-    plt.hist(after_flat, bins=200)
-    plt.yscale('log')
-    plt.xlabel("compound score")
-    plt.ylabel("number of reviews")
-    plt.title(f"Compound Score Distribution after the {type_}" )
-    plt.show()
+    print(f"Kolmogorov-Smirnov test p-value: {stats.kstest(before_flat, after_flat).pvalue}")
 
 
 def plot_oscar_bump_unique_movie(imdb_id,type_):
@@ -283,7 +281,7 @@ def plot_proportions_change():
     plt.xlabel("Sentiment Categories")
     plt.ylabel("Change in Proportion")
     plt.title("Change in Compound Scores Distribution After the Ceremony")
-    plt.legend()
+    #plt.legend()
     plt.tight_layout()
     
     # Show the plot for the ceremony
@@ -298,7 +296,7 @@ def plot_proportions_change():
     plt.xlabel("Sentiment Categories")
     plt.ylabel("Change in Proportion")
     plt.title("Change in Compound Scores Distribution After the Nomination")
-    plt.legend()
+    #plt.legend()
     plt.tight_layout()
     
     # Show the plot for the nomination
@@ -313,7 +311,7 @@ def plot_proportions_change():
     plt.xlabel("Sentiment Categories")
     plt.ylabel("Change in Proportion")
     plt.title("Change in Compound Scores Distribution After Ceremony: Winners vs. Losers")
-    plt.legend()
+    #plt.legend()
     plt.tight_layout()
     
     # Show the plot for the nomination
