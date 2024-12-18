@@ -108,73 +108,13 @@ def plot_distribution(feature: str, top_n: int = None):
     plt.show()
 
 
-def plot_bias(feature: str, top_n: int = None):
+def ols(feature: str, top_n: int = None):
     """
-    Generic function to calculate and plot bias factors for a specified feature.
+    Perform OLS regression using the specified feature and visualize top_n coefficients.
 
     Args:
-        feature (str): Column name to analyze (e.g., 'IMDB_genres', 'countries').
-        top_n (int, optional): Number of top categories to include. If None, include all.
-    """
-    nominees, non_nominees = load_data()
-    nominee_distribution = calculate_distribution(nominees[feature])
-    non_nominee_distribution = calculate_distribution(non_nominees[feature])
-
-    # Align categories between nominee and non-nominee distributions
-    all_items = set(nominee_distribution.keys()).union(
-        set(non_nominee_distribution.keys())
-    )
-
-    # Create aligned distributions with 0 for missing categories
-    aligned_nominee_distribution = {
-        item: nominee_distribution.get(item, 0) for item in all_items
-    }
-    aligned_non_nominee_distribution = {
-        item: non_nominee_distribution.get(item, 0) for item in all_items
-    }
-
-    # Calculate the bias factor for each category
-    bias_factors = {
-        item: (
-            aligned_nominee_distribution[item] / aligned_non_nominee_distribution[item]
-            if aligned_non_nominee_distribution[item] > 0
-            else np.nan  # Avoid division by zero
-        )
-        for item in all_items
-    }
-
-    # Sort categories by bias factor
-    sorted_items = sorted(
-        bias_factors.keys(), key=lambda x: bias_factors[x], reverse=True
-    )
-
-    # Optionally limit to top `n` categories
-    if top_n:
-        sorted_items = sorted_items[:top_n]
-
-    # Plot bias factors
-    plt.figure(figsize=(10, 6))
-    plt.bar(
-        sorted_items,
-        [bias_factors[item] for item in sorted_items],
-        color="skyblue",
-    )
-    plt.axhline(1, color="red", linestyle="--", label="No Bias")
-    plt.xlabel(feature.capitalize())
-    plt.ylabel("Bias Factor (nominees/Non-nominees)")
-    plt.title(f"{feature.capitalize()} Bias Factors: nominees vs. Non-nominees")
-    plt.xticks(rotation=90)
-    plt.legend()
-    plt.show()
-
-    # Print sorted bias factors for detailed inspection
-    for item in sorted_items:
-        print(f"{item}: {bias_factors[item]:.2f}")
-
-
-def correlation(feature: str = "IMDB_genres"):
-    """
-    Calculate the correlation between the nominated category and the specified feature.
+        feature (str): The feature to analyze (e.g., 'IMDB_genres').
+        top_n (int, optional): Number of top predictors to visualize. If None, visualize all.
     """
     # Load the data
     nominees, non_nominees = load_data()
@@ -190,69 +130,83 @@ def correlation(feature: str = "IMDB_genres"):
     data = pd.concat([nominees, non_nominees], ignore_index=True)
 
     # One hot encode genres
-    X_genres = data[feature].explode()
-    X_genres = pd.get_dummies(X_genres).groupby(level=0).sum()
-    y_genres = data["nominated"]  # Target
-
-    # Calculate the correlation matrix
-    correlation_matrix = X_genres.corrwith(y_genres)
-
-    # Visualize the correlation matrix
-    plt.figure(figsize=(10, 6))
-    correlation_matrix.plot(kind="bar", color="skyblue")
-
-    plt.title("Correlation between Genres and Nomination")
-    plt.ylabel("Correlation")
-    plt.xlabel("Genre")
-    plt.xticks(rotation=90)
-    plt.show()
-
-    return correlation_matrix
-
-
-def ols(feature: str = "IMDB_genres"):
-    # target is nominated
-    # genres are the predictors
-    # Load the data
-    nominees, non_nominees = load_data()
-
-    # Add "nominated" column to oscar_movies and drop "winner" column
-    nominees["nominated"] = True
-    nominees = nominees.drop(columns=["winner"])
-
-    # Add "nominated" column to all_other_movies with False
-    non_nominees["nominated"] = False
-
-    # Combine both dataframes
-    data = pd.concat([nominees, non_nominees], ignore_index=True)
-
-    # One hot encode genres
-    X_genres = data[feature].explode()
-    X_genres = pd.get_dummies(X_genres).groupby(level=0).sum()
-    y_genres = data["nominated"]  # Target
+    X = data[feature].explode()
+    X = pd.get_dummies(X).groupby(level=0).sum()
+    y = data["nominated"]  # Target
 
     # Add a constant for intercept
-    X_genres = sm.add_constant(X_genres)
+    X = sm.add_constant(X)
 
     # Fit the OLS model
-    ols_model_genres = sm.OLS(y_genres, X_genres).fit()
+    ols_model = sm.OLS(y, X).fit()
 
     # Summary of the genre-focused OLS model
-    ols_summary_genres = ols_model_genres.summary()
+    ols_summary = ols_model.summary()
+
+    # Display the OLS model summary
+    print(ols_summary)
+
+    # Get coefficients excluding the intercept
+    params = ols_model.params[1:]  # Exclude intercept
+
+    # Select top_n by absolute value
+    if top_n:
+        top_params = params.abs().nlargest(top_n).index  # Get top_n absolute values
+        sorted_params = params.loc[top_params].sort_values(
+            ascending=True
+        )  # Sort by actual values
+    else:
+        sorted_params = params.sort_values(ascending=True)  # Sort all by actual values
+
+    # Adjust dynamic height for visualization
+    height_per_elem = 0.5  # Height per bar
+    dynamic_height = max(8, len(sorted_params) * height_per_elem)  # Minimum height
 
     # Visualize coefficients and p-values
     plt.figure(figsize=(10, 6))
-    # Sort the coefficients by value
-    ols_model_genres.params[1:] = ols_model_genres.params[1:].sort_values()
-    ols_model_genres.params[1:].plot(kind="bar", color="skyblue")
+    sorted_params.plot(kind="barh")  # Horizontal bar chart
 
-    plt.title("OLS Model Coefficients: Genres")
-    plt.ylabel("Coefficient")
-    plt.xlabel("Genre")
-    plt.xticks(rotation=90)
+    plt.title(f"OLS Model Coefficients: Top {top_n or 'All'} Predictors")
+    plt.xlabel("Coefficient")
+    plt.ylabel(feature)
+    plt.axvline(0, color="red", linestyle="--")  # Reference line at 0
+    plt.tight_layout()
     plt.show()
 
-    return ols_summary_genres
+
+def ols_runtime():
+    """
+    Fit an OLS model using runtime as the predictor for nomination.
+    """
+    # Load the data
+    nominees, non_nominees = load_data()
+
+    # Add "nominated" column and drop "winner" column
+    nominees["nominated"] = True
+    nominees = nominees.drop(columns=["winner"])
+
+    non_nominees["nominated"] = False
+
+    # Combine both datasets
+    data = pd.concat([nominees, non_nominees], ignore_index=True)
+
+    # Drop rows with missing runtime
+    data = data.dropna(subset=["runtime"])
+
+    # Define the predictor (X) and target (y)
+    X_runtime = data[["runtime"]]
+    y_nominated = data["nominated"]
+
+    # Add a constant for intercept
+    X_runtime = sm.add_constant(X_runtime)
+
+    # Fit the OLS model
+    ols_model_runtime = sm.OLS(y_nominated, X_runtime).fit()
+
+    # Summary of the runtime-focused OLS model
+    ols_summary_runtime = ols_model_runtime.summary()
+
+    return ols_summary_runtime
 
 
 def vif(feature: str = "IMDB_genres"):
