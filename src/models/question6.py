@@ -92,7 +92,7 @@ def plot_distribution(feature: str, top_n: int = None):
         x - width / 2,
         aligned_nominee_distribution.values(),
         width,
-        label="nominees",
+        label="Nominees",
     )
     plt.bar(
         x + width / 2,
