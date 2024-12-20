@@ -55,7 +55,7 @@ def load_data():
     return data
 
 
-def balance_dataset(data: pd.DataFrame, target: str):
+def balance_dataset_ls(data: pd.DataFrame, target: str):
     """
     Balance the dataset by oversampling the minority class.
 

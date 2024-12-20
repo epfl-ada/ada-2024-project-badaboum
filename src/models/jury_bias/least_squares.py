@@ -1,7 +1,7 @@
 import pandas as pd
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
-from src.models.jury_bias.utils import balance_dataset, filter_high_vif
+from src.models.jury_bias.utils import balance_dataset_ls, filter_high_vif
 
 
 def ols_categorical(data: pd.DataFrame, feature: str, target="nominated"):
@@ -15,7 +15,7 @@ def ols_categorical(data: pd.DataFrame, feature: str, target="nominated"):
         target (str): The target column for prediction.
     """
     # Balance the dataset
-    balanced_data = balance_dataset(data, target)
+    balanced_data = balance_dataset_ls(data, target)
     # One hot encode genres
     X = balanced_data[feature].explode()
     X = pd.get_dummies(X).groupby(level=0).sum()
@@ -46,7 +46,7 @@ def ols_continuous(data: pd.DataFrame, feature: str, target="nominated"):
         target (str): The target column for prediction
     """
     # Balance the dataset
-    balanced_data = balance_dataset(data, target)
+    balanced_data = balance_dataset_ls(data, target)
 
     # Drop rows with missing runtime
     balanced_data = balanced_data.dropna(subset=["runtime"])
@@ -78,7 +78,7 @@ def gls_categorical(data: pd.DataFrame, feature: str, target="nominated"):
         target (str): The target column for prediction.
     """
     # Balance the dataset
-    balanced_data = balance_dataset(data, target)
+    balanced_data = balance_dataset_ls(data, target)
 
     # One hot encode genres
     X = balanced_data[feature].explode()
@@ -129,7 +129,7 @@ def gls_continuous(data: pd.DataFrame, feature: str, target="nominated"):
         target (str): The target column for prediction
     """
     # Balance the dataset
-    balanced_data = balance_dataset(data, target)
+    balanced_data = balance_dataset_ls(data, target)
 
     # Drop rows with missing runtime
     balanced_data = balanced_data.dropna(subset=["runtime"])

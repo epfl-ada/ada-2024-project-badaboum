@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, roc_auc_score, roc_curve
 from sklearn.preprocessing import StandardScaler
-from src.models.jury_bias.utils import balance_dataset
+from imblearn.over_sampling import SMOTE
 
 
 def preprocess_data(data, feature_columns, target="nominated"):
@@ -20,12 +20,17 @@ def preprocess_data(data, feature_columns, target="nominated"):
         X (pd.DataFrame): Processed feature matrix.
         y (pd.Series): Target variable.
     """
-    # Balance the dataset
-    balanced_data = balance_dataset(data, target=target)
+    # Handle list-like columns
+    for col in ["IMDB_genres", "countries"]:
+        if data[col].apply(lambda x: isinstance(x, list)).any():
+            # Convert lists to strings for one-hot encoding
+            data[col] = data[col].apply(
+                lambda x: ",".join(map(str, x)) if isinstance(x, list) else x
+            )
 
-    # One-hot encode categorical features
-    X = pd.get_dummies(balanced_data[feature_columns], drop_first=True)
-    y = balanced_data[target]
+        # One-hot encode categorical features
+        X = pd.get_dummies(data[feature_columns], drop_first=True)
+    y = data[target]
 
     return X, y
 
@@ -39,22 +44,32 @@ def logistic_regression(data, feature_columns, target="nominated"):
         feature_columns (list): List of feature columns to use.
         target (str): The target column for prediction.
     """
+    # Check that the target is not part of the feature columns
+    if target in feature_columns:
+        raise ValueError(
+            "Target variable should not be included in the feature columns."
+        )
+
     # Preprocess data
     X, y = preprocess_data(data, feature_columns, target)
 
     # Split into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
+        X, y, test_size=0.2, random_state=42, stratify=y
     )
+
+    # Use SMOTE to balance the training set
+    smote = SMOTE(random_state=42)
+    X_train_sm, y_train_sm = smote.fit_resample(X_train, y_train)
 
     # Scale continuous features
     scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
+    X_train_sm = scaler.fit_transform(X_train_sm)
     X_test = scaler.transform(X_test)
 
-    # Train logistic regression model
-    model = LogisticRegression(max_iter=1000, random_state=42)
-    model.fit(X_train, y_train)
+    # Train logistic regression model with class weight adjustment
+    model = LogisticRegression(class_weight="balanced", max_iter=1000, random_state=42)
+    model.fit(X_train_sm, y_train_sm)
 
     # Evaluate the model
     y_pred = model.predict(X_test)
