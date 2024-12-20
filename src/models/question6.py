@@ -108,22 +108,22 @@ def plot_distribution(feature: str, top_n: int = None):
     plt.show()
 
 
-def ols(feature: str, top_n: int = None):
+def ols(feature: str, top_n: int = 20):
     """
-    Perform OLS regression using the specified feature and visualize top_n coefficients.
+    Perform OLS regression using the specified feature and visualize significant predictors.
 
     Args:
         feature (str): The feature to analyze (e.g., 'IMDB_genres').
-        top_n (int, optional): Number of top predictors to visualize. If None, visualize all.
+        top_n (int): Number of top predictors to visualize if significant. Default is 20.
     """
     # Load the data
     nominees, non_nominees = load_data()
 
-    # Add "nominated" column to oscar_movies and drop "winner" column
+    # Add "nominated" column to nominees and drop "winner" column
     nominees["nominated"] = True
     nominees = nominees.drop(columns=["winner"])
 
-    # Add "nominated" column to all_other_movies with False
+    # Add "nominated" column to non_nominees with False
     non_nominees["nominated"] = False
 
     # Combine both dataframes
@@ -146,27 +146,35 @@ def ols(feature: str, top_n: int = None):
     # Display the OLS model summary
     print(ols_summary)
 
-    # Get coefficients excluding the intercept
+    # Get coefficients and p-values excluding the intercept
     params = ols_model.params[1:]  # Exclude intercept
+    p_values = ols_model.pvalues[1:]  # Exclude intercept
+
+    # Filter significant predictors (p < 0.05)
+    significant_params = params[p_values < 0.05]
 
     # Select top_n by absolute value
     if top_n:
-        top_params = params.abs().nlargest(top_n).index  # Get top_n absolute values
-        sorted_params = params.loc[top_params].sort_values(
+        top_params = (
+            significant_params.abs().nlargest(top_n).index
+        )  # Get top_n absolute values
+        sorted_params = significant_params.loc[top_params].sort_values(
             ascending=True
         )  # Sort by actual values
     else:
-        sorted_params = params.sort_values(ascending=True)  # Sort all by actual values
+        sorted_params = significant_params.sort_values(
+            ascending=True
+        )  # Sort all by actual values
 
     # Adjust dynamic height for visualization
     height_per_elem = 0.5  # Height per bar
     dynamic_height = max(8, len(sorted_params) * height_per_elem)  # Minimum height
 
     # Visualize coefficients and p-values
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, dynamic_height))
     sorted_params.plot(kind="barh")  # Horizontal bar chart
 
-    plt.title(f"OLS Model Coefficients: Top {top_n or 'All'} Predictors")
+    plt.title(f"OLS Model Coefficients: Top {top_n} Significant Predictors")
     plt.xlabel("Coefficient")
     plt.ylabel(feature)
     plt.axvline(0, color="red", linestyle="--")  # Reference line at 0
