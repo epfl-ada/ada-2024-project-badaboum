@@ -12,7 +12,7 @@ def calculate_distribution(feature_list):
     return {item: count / total for item, count in item_counts.items()}
 
 
-def plot_distribution(data: pd.DataFrame, feature: str, top_n: int = None):
+def plot_categorical_distribution(data: pd.DataFrame, feature: str, top_n: int = None):
     """
     Generic function to plot the distribution of a specified feature.
 
