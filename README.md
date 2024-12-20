@@ -1,5 +1,7 @@
 
 # Oscar or Flopscar: Do the Academy Awards Reflect Audience Taste?
+## Link to the datastory
+[Datastory](https://epfl-badaboum.github.io/website/)
 
 ## Quickstart
 
@@ -38,8 +40,6 @@ You have two options for obtaining the datasets:
     1. Download base datasets from the following links:
         - [CMU Dataset](https://www.cs.cmu.edu/~ark/personas/)
         - [IMDb Dataset](https://datasets.imdbws.com/)
-        - [Golden Globes](https://www.kaggle.com/datasets/unanimad/golden-globe-awards)
-        - [BAFTA Awards](https://www.kaggle.com/datasets/unanimad/bafta-awards)
     2. Place the datasets in the ```data``` directory.
     3. Run the following scripts to create the remaining data:
         ```
@@ -66,10 +66,6 @@ Your data directory should look like this:
 │       ├── plot_summaries.txt
 │       ├── README.txt
 │       ├── tvtropes.clusters.txt
-├── other_awards          <- Other awards dataset
-|       ├── bafta_films.csv
-|       ├── golden_globe_awards.csv
-|       ├── other_awards.csv
 |
 ├── all_other_movies.csv <- All movies that are not Oscar winners nor nominees
 ├── oscar_movies.csv     <- Oscar winners, merged with IMDb and CMU data
@@ -101,20 +97,19 @@ The directory structure of new project looks like this:
 ## Project Proposal
 
 ### Abstract
-This project explores the relationship between Oscar-winning films and audience ratings to assess the alignment (or divergence) between the Academy’s choices and public opinion. We will analyze IMDb ratings of Oscar winners, non-winning nominees, and box-office hits to uncover any trends or biases in Academy Awards decisions over time. Additionally, we aim to examine the influence of star power, genre, and the "Oscar bump" effect on ratings, as well as compare Oscars to other international film festivals. Through visualizations and statistical measures, this research will reveal patterns in Oscar nominations and wins, contributing to discussions on cultural and rating biases.
+This project explores the relationship between Oscar-winning films and audience ratings to assess the alignment (or divergence) between the Academy’s choices and public opinion. We will analyze IMDb ratings of Oscar winners, non-winning nominees, and box-office hits to uncover any trends or biases in Academy Awards decisions over time. Additionally, we aim to examine the influence of star power, genre as well as the "Oscar bump" effect on ratings. Through visualizations and statistical measures, this research will reveal patterns in Oscar nominations and wins, contributing to discussions on cultural and rating biases.
 
 ### Research Questions
 - Do Oscar-winning films generally have higher ratings compared to non-winning nominees and top box-office hits?
 - How do ratings of Oscar-winning films evolve over time—do they "age well" with audiences?
 - Is there a correlation between high-profile actors/directors and Oscar wins, regardless of ratings?
-- How does the Oscars’ preference align (or diverge) from that of other major international film festivals?
 - Does winning an Oscar lead to a measurable increase in ratings or review counts (i.e., the "Oscar bump")?
 - Are there discernible biases within Oscar winners, such as genre, nationality, or star power, that differ from audience preferences?
 
 
 ### Methods
 Data collection:
-- Downloading CMU, IMDB and Kaggle datasets
+- Downloading CMU and IMDB datasets
 - Web scraping IMDb for ratings, reviews, and other metadata.
 - Querying the Oscars database for nominees and winners.
 
@@ -164,5 +159,11 @@ Week 7 (Dec 9 - Dec 16):
 
 
 ### Organization within the team
-Each member was responsible for at least one research question. The other members would provide feedback and suggestions to improve the analysis. The team would meet weekly to discuss progress, challenges, and next steps. The team would also share resources and insights to support each other’s work.
+Each member was responsible for at least one research question for Milestone 2, if the question was kept, they continued to work on it for the final submission. The other members would provide feedback and suggestions to improve the analysis. The team would meet weekly to discuss progress, challenges, and next steps. The team would also share resources and insights to support each other’s work.
 The other tasks were distributed as evenly as possible, based on the workload of the assigned research questions.
+#### Contributions of each team member:
+- Yoann: 1. Ratings Comparison: Oscar Winners vs. Nominees
+- Quentin: 2. Ratings Over Time: Do Oscar Winners "Age Well"? and 4. The Oscar Bump: Rating and Review Increases Post-Win
+- Matya: 3. Impact of High-Profile Actors/Directors on Oscar Wins
+- Camille: 5. Oscars jury vs Audience biases
+- Sophia: Problem formulation, Data Processing and Data story
