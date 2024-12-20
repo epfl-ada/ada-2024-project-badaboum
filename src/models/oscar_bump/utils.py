@@ -4,7 +4,16 @@ from src.models.oscar_bump.utils import *
 import pandas as pd
 
 def split_compound_score(type_="ceremony"):
-
+    """
+    Split the compound score of the reviews according to the specified date
+    
+    Parameters:
+        type_ (str): The type of date to consider (ceremony or nomination)
+        
+    Returns:
+        before_scores (list): A list of the sentiment scores before the specified date
+        after_scores (list): A list of the sentiment scores after the specified date
+    """
     # Initial data
     df = get_data()
 
@@ -15,6 +24,7 @@ def split_compound_score(type_="ceremony"):
     # Group reviews by movie
     df_grouped = df.groupby('imdb_id')
 
+    # Iterate over each movie
     for _, group in df_grouped:
         
         # Get the ceremony date for the current movie
@@ -34,10 +44,24 @@ def split_compound_score(type_="ceremony"):
 
 
 def prepare_data(df, imdb_id, nomination_date, ceremony_date, type_="both"):
-
+    """
+    Prepare the data of a specified movie for further analysis
+    
+    Parameters:
+        df (pd.DataFrame): The reviews dataframe
+        imdb_id (str): The IMDB ID of the movie
+        nomination_date (pd.Timestamp): The nomination date of the movie
+        ceremony_date (pd.Timestamp): The ceremony date of the movie
+        type_ (str): The type of date to consider (nomination, ceremony or both)
+        
+    Returns:
+        grouped_reviews_mean_smoothed (pd.Series): The smoothed mean of the reviews sentiment scores
+        grouped_reviews_count_smoothed (pd.Series): The smoothed count of the reviews sentiment
+    """
     first_date = nomination_date
     seconde_date = ceremony_date
 
+    # Adjust the dates according to the type
     if(type_ == "nomination"):
         seconde_date = nomination_date
     elif(type_ == "ceremony"):
@@ -61,6 +85,15 @@ def prepare_data(df, imdb_id, nomination_date, ceremony_date, type_="both"):
 
 
 def prepare_data_for_all_movies(df):
+    """
+    Prepare the data for all movies in the dataset
+    
+    Parameters:
+        df (pd.DataFrame): The reviews dataframe
+        
+    Returns:
+        results (dict): A dictionary containing the prepared data for each movie
+    """
     results = {}
     # To keep track of processed movie IDs
     seen_movies = set() 

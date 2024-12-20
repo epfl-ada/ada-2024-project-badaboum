@@ -1,5 +1,6 @@
 from src.models.oscar_bump.datasets_loading import get_data
 from src.models.oscar_bump.utils import *
+from scipy.stats import linregress
 
 import pandas as pd
 import seaborn as sns
@@ -7,10 +8,16 @@ import matplotlib.pyplot as plt
 import scipy.stats as stats
 
 def plot_compound_distribution(type_="ceremony"):
-
+    """
+    Plot the distribution of the compound score before and after the ceremony
+    
+    Parameters:
+        type_ (str): The type of date to consider (ceremony or nomination)
+    """
     # Get the reviews already splitted
     before, after = split_compound_score(type_="ceremony")
 
+    # If the type is nomination, split the compound score for the nomination date
     if(type_== "nomination"):
         before, after = split_compound_score(type_="nomination")
     
@@ -28,14 +35,22 @@ def plot_compound_distribution(type_="ceremony"):
     plt.title(f"Compound Score Distribution before and after the {type_}" )
     plt.show()
 
+    # Perform the Kolmogorov-Smirnov test and print the p-value
     print(f"Kolmogorov-Smirnov test p-value: {stats.kstest(before_flat, after_flat).pvalue}")
 
 
 def plot_oscar_bump_unique_movie(imdb_id,type_):
+    """
+    Plot the compound score over time for a specific movie
     
+    Parameters:
+        imdb_id (str): The IMDB ID of the movie
+        type_ (str): The type of score to consider (compound or count)
+    """
     # Get the data
     df_init = get_data()
 
+    # Get the nomination and ceremony date
     nomination_date = pd.to_datetime(df_init[df_init.imdb_id==imdb_id].nomination_date.values[0])
     ceremony_date = pd.to_datetime(df_init[df_init.imdb_id==imdb_id].ceremony_date.values[0])
 
@@ -51,6 +66,7 @@ def plot_oscar_bump_unique_movie(imdb_id,type_):
     ylabel = ""
     df = df_init
 
+    # Set the labels according to the type
     if(type_ == "compound"):
         title = "Compound score over time for the movie: "
         xlabel = "Date"
@@ -70,15 +86,19 @@ def plot_oscar_bump_unique_movie(imdb_id,type_):
     nomination_value = df.loc[nomination_date]
     ceremony_value = df.loc[ceremony_date]
     
+    # Add the points to the plot
     sns.scatterplot(x=[nomination_date], y=[nomination_value], color='red', s=100, marker='o',
                     label='Oscar Nomination', zorder=2)
 
+    # Add the points to the plot
     sns.scatterplot(x=[ceremony_date], y=[ceremony_value], color='blue', s=100, marker='o',
                     label='Ceremony Date', zorder=2)
 
 
 def plot_oscar_bump_all_movies():
-    
+    """
+    Plot the compound score over time for all movies
+    """   
     # Get the data
     df_init = get_data()
 
@@ -89,7 +109,7 @@ def plot_oscar_bump_all_movies():
     all_counts = []
 
     # Collect all the mean values from the results
-    for imdb_id, data in results.items():
+    for _, data in results.items():
         all_compounds.append(data['mean'])
         all_counts.append(data['count'])
 
@@ -101,17 +121,14 @@ def plot_oscar_bump_all_movies():
     daily_mean_coumpounds = combined_compounds.groupby(combined_compounds.index).mean()
     daily_mean_counts = combined_counts.groupby(combined_counts.index).mean()
 
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from scipy.stats import linregress
+    # Time (relative to ceremony date)
+    x = daily_mean_coumpounds.index 
     
-    # Example daily_mean_compounds data
-    # daily_mean_coumpounds is assumed to be a pandas Series with index as the time variable
-    x = daily_mean_coumpounds.index  # Time (relative to ceremony date)
-    y = daily_mean_coumpounds.values  # Mean sentiment scores
+    # Mean sentiment scores
+    y = daily_mean_coumpounds.values  
     
     # Fit a linear regression model
-    slope, intercept, r_value, p_value, std_err = linregress(x, y)
+    slope, intercept, _, _, _ = linregress(x, y)
     
     # Generate the regression line
     regression_line = intercept + slope * x
@@ -123,12 +140,14 @@ def plot_oscar_bump_all_movies():
     # Plot the regression line
     plt.plot(x, regression_line, color='red', linestyle='--')
     
+    # Add labels and legend
     plt.title('Mean of All Movie Sentiment Scores around the Ceremony Date')
     plt.xlabel('Time (Days)')
     plt.ylabel('Mean Sentiment Score')
     plt.legend()
     plt.show()
 
+    # Plot the overall mean for the number of reviews   
     plt.figure(figsize=(10, 5))
     plt.plot(daily_mean_counts, label='Combined Mean Number Of Reviews')
     plt.title('Count of All Movie Reviews around the Ceremony Date')
@@ -139,11 +158,15 @@ def plot_oscar_bump_all_movies():
 
 
 def plot_proportions():
+    """
+    Plot the distribution of the compound score for different situations
+    """
     
+    # Split the compound score for the ceremony and nomination date
     before_scores, after_scores = split_compound_score(type_="ceremony")
     before_scores_nomination, after_scores_nomination = split_compound_score(type_="nomination")
 
-    # Flatten the lists 
+    # Flatten the lists for the plot
     before_flat = [item['text_compound'] for sublist in before_scores for item in sublist.to_dict(orient='records')]
     after_flat = [item['text_compound'] for sublist in after_scores for item in sublist.to_dict(orient='records')]
 
@@ -157,7 +180,7 @@ def plot_proportions():
     bins = [-1, -0.8, -0.2, 0.2, 0.8, 1]
     labels = ["Really Negative", "Negative", "Neutral", "Positive", "Really Positive"]
     
-    # Bin the scores
+    # Categorize the compound scores
     before_categories = pd.cut(before_flat, bins=bins, labels=labels)
     after_categories = pd.cut(after_flat, bins=bins, labels=labels)
 
@@ -167,7 +190,7 @@ def plot_proportions():
     after_winner_categories = pd.cut(after_flat_winner, bins=bins, labels=labels)
     after_looser_categories = pd.cut(after_flat_looser, bins=bins, labels=labels)
 
-    # Count the occurrences in each category
+    # Calculate the proportions
     before_counts = before_categories.value_counts() / len(before_flat)
     after_counts = after_categories.value_counts() / len(after_flat)
 
@@ -177,13 +200,12 @@ def plot_proportions():
     after_winner_counts = after_winner_categories.value_counts() / len(after_flat_winner)
     after_looser_counts = after_looser_categories.value_counts() / len(after_flat_looser)
     
-    # Plot the distributions
+    # Plot the proportions
     x = range(len(labels))
     
     plt.bar(x, before_counts, width=0.4, label="Before the ceremony", align='center', alpha=0.7)
     plt.bar(x, after_counts, width=0.4, label="After the ceremony", align='edge', alpha=0.7)
     
-    # Add labels and legend
     plt.xticks(x, labels, rotation=45)
     plt.xlabel("Sentiment Categories")
     plt.ylabel("Proportion")
@@ -191,13 +213,11 @@ def plot_proportions():
     plt.legend()
     plt.tight_layout()
     
-    # Show the plot
     plt.show()
 
     plt.bar(x, before_counts_nomination, width=0.4, label="Before the nomination", align='center', alpha=0.7)
     plt.bar(x, after_counts_nomination, width=0.4, label="After the nomination", align='edge', alpha=0.7)
     
-    # Add labels and legend
     plt.xticks(x, labels, rotation=45)
     plt.xlabel("Sentiment Categories")
     plt.ylabel("Proportion")
@@ -205,13 +225,11 @@ def plot_proportions():
     plt.legend()
     plt.tight_layout()
     
-    # Show the plot
     plt.show()
 
     plt.bar(x, after_winner_counts, width=0.4, label="After the ceremony and won", align='center', alpha=0.7)
     plt.bar(x, after_looser_counts, width=0.4, label="After the ceremony and didn't win", align='edge', alpha=0.7)
     
-    # Add labels and legend
     plt.xticks(x, labels, rotation=45)
     plt.xlabel("Sentiment Categories")
     plt.ylabel("Proportion")
@@ -219,15 +237,18 @@ def plot_proportions():
     plt.legend()
     plt.tight_layout()
     
-    # Show the plot
     plt.show()
 
 
 def plot_proportions_change():
+    """
+    Plot the change in the distribution of the compound score for different situations
+    """
+    # Split the compound score for the ceremony and nomination date
     before_scores, after_scores = split_compound_score(type_="ceremony")
     before_scores_nomination, after_scores_nomination = split_compound_score(type_="nomination")
 
-    # Flatten the lists 
+    # Flatten the lists for the plot
     before_flat = [item['text_compound'] for sublist in before_scores for item in sublist.to_dict(orient='records')]
     after_flat = [item['text_compound'] for sublist in after_scores for item in sublist.to_dict(orient='records')]
 
@@ -241,7 +262,7 @@ def plot_proportions_change():
     bins = [-1, -0.8, -0.2, 0.2, 0.8, 1]
     labels = ["Really Negative", "Negative", "Neutral", "Positive", "Really Positive"]
     
-    # Bin the scores
+    # Categorize the compound scores
     before_categories = pd.cut(before_flat, bins=bins, labels=labels)
     after_categories = pd.cut(after_flat, bins=bins, labels=labels)
 
@@ -251,7 +272,7 @@ def plot_proportions_change():
     after_winner_categories = pd.cut(after_flat_winner, bins=bins, labels=labels)
     after_looser_categories = pd.cut(after_flat_looser, bins=bins, labels=labels)
 
-    # Count the occurrences in each category
+    # Calculate the proportions
     before_counts = before_categories.value_counts() / len(before_flat)
     after_counts = after_categories.value_counts() / len(after_flat)
 
@@ -261,54 +282,43 @@ def plot_proportions_change():
     after_winner_counts = after_winner_categories.value_counts() / len(after_flat_winner)
     after_looser_counts = after_looser_categories.value_counts() / len(after_flat_looser)
     
-    # Calculate the change in distribution (before vs after)
+    # Calculate the change in the distribution
     change_ceremony = after_counts - before_counts
     change_nomination = after_counts_nomination - before_counts_nomination
     change_winner = after_winner_counts - after_looser_counts
 
-    # Plot the change in distributions
+    # Plot the change in the distribution
     x = range(len(labels))
     
-    # Plot the change for the ceremony
     plt.bar(x, change_ceremony, width=0.4, label="Change After Ceremony", align='center', alpha=0.7, color="b")
-    plt.axhline(0, color='black',linewidth=1)  # add a horizontal line at 0 for reference
+    plt.axhline(0, color='black',linewidth=1)  
     
-    # Add labels and legend
     plt.xticks(x, labels, rotation=45)
     plt.xlabel("Sentiment Categories")
     plt.ylabel("Change in Proportion")
     plt.title("Change in Compound Scores Distribution After the Ceremony")
-    #plt.legend()
     plt.tight_layout()
     
-    # Show the plot for the ceremony
     plt.show()
 
-    # Plot the change for the nomination
     plt.bar(x, change_nomination, width=0.4, label="Change After Nomination", align='center', alpha=0.7, color="g")
-    plt.axhline(0, color='black',linewidth=1)  # add a horizontal line at 0 for reference
+    plt.axhline(0, color='black',linewidth=1) 
     
-    # Add labels and legend
     plt.xticks(x, labels, rotation=45)
     plt.xlabel("Sentiment Categories")
     plt.ylabel("Change in Proportion")
     plt.title("Change in Compound Scores Distribution After the Nomination")
     plt.tight_layout()
     
-    # Show the plot for the nomination
     plt.show()
-
-    # Plot the change for the nomination
-    plt.bar(x, change_winner, width=0.4, label="Change for a Winner compared to a Looser", align='center', alpha=0.7, color="r")
-    plt.axhline(0, color='black',linewidth=1)  # add a horizontal line at 0 for reference
     
-    # Add labels and legend
+    plt.bar(x, change_winner, width=0.4, label="Change for a Winner compared to a Looser", align='center', alpha=0.7, color="r")
+    plt.axhline(0, color='black',linewidth=1)
     plt.xticks(x, labels, rotation=45)
     plt.xlabel("Sentiment Categories")
     plt.ylabel("Change in Proportion")
     plt.title("Change in Compound Scores Distribution After Ceremony: Winners vs. Losers")
     plt.tight_layout()
     
-    # Show the plot for the nomination
     plt.show()
 

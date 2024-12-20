@@ -6,17 +6,29 @@ import statsmodels.api as sm
 import random
 
 def perform_regression_compound(type_score="all", type_date="ceremony"):
+    """
+    Perform a regression analysis on the compound score of the reviews
     
+    Parameters:
+        type_score (str): The type of score to consider (all, positive or negative)
+        type_date (str): The type of date to consider (ceremony or nomination)
+        
+    Returns:
+        final_df (pd.DataFrame): The final dataframe used for the regression analysis
+    """
     # Get the reviews already splitted
     before, after = split_compound_score(type_="ceremony")
 
+    # If the type of date is nomination, get the reviews splitted for the nomination date
     if(type_date == "nomination"):
         
         before, after = split_compound_score(type_="nomination")
         
+    # Flatten the lists of dataframes
     before_flat = [item['text_compound'] for sublist in before for item in sublist.to_dict(orient='records')]
     after_flat = [item['text_compound'] for sublist in after for item in sublist.to_dict(orient='records')]
 
+    # If the type of score is positive or negative, filter the data accordingly
     if(type_score=="positive"):
         
         before_flat = [item['text_compound'] for sublist in before for item in sublist.to_dict(orient='records') if 
@@ -37,14 +49,17 @@ def perform_regression_compound(type_score="all", type_date="ceremony"):
     before_flat = random.sample(before_flat, target_length) if len(before_flat) > target_length else before_flat
     after_flat = random.sample(after_flat, target_length) if len(after_flat) > target_length else after_flat
 
+    # Create the final dataframe
     before_final = pd.DataFrame(before_flat)
     after_final = pd.DataFrame(after_flat)
 
     before_final["time"] = 0
     after_final["time"] = 1
 
+    # Concatenate the dataframes
     final_df = pd.concat([before_final, after_final])
 
+    # Rename the compound score column
     final_df = final_df.rename(columns={0: "compound"})
 
     # Independent variable (time) and dependent variable (score)
@@ -64,22 +79,23 @@ def perform_regression_compound(type_score="all", type_date="ceremony"):
 
 
 def perform_statistical_test_compound(type_="ceremony"):
+    """
+    Perform a Wilcoxon test on the compound score of the reviews
     
+    Parameters:
+        type_ (str): The type of date to consider (ceremony or nomination)
+        
+    Returns:
+        results_df (pd.DataFrame): The results of the Wilcoxon test for each movie
+    """
     # Get the reviews already splitted
     before, after = split_compound_score(type_="ceremony")
 
     if(type_== "nomination"):
         before, after = split_compound_score(type_="nomination")
     
-    # Flatten the lists for the test
-    before_flat = [item['text_compound'] for sublist in before for item in sublist.to_dict(orient='records')]
-    after_flat = [item['text_compound'] for sublist in after for item in sublist.to_dict(orient='records')]
-
     # List for the pairwise results
     results = []
-
-    # Number of tested movies
-    count = 0
     
     for i in range(0,len(before)):
 
@@ -91,6 +107,7 @@ def perform_statistical_test_compound(type_="ceremony"):
         if len(before_curr) == 0 or len(after_curr) == 0:
             continue  
 
+        # Get the movie id and the winner tag
         movie_id = before[i]['imdb_id'].tolist()[0]
         winner = before[i]['winner'].tolist()[0]
         
@@ -100,7 +117,7 @@ def perform_statistical_test_compound(type_="ceremony"):
         after_curr = after_curr[:min_length]
         
         # Perform the Wilcoxon test (with reviews specific to one movie)
-        stat, p = wilcoxon(before_curr, after_curr)
+        _, p = wilcoxon(before_curr, after_curr)
         results.append({'Movie ID': movie_id, 'Winner': winner , 'p-value': p})
 
     results_df = pd.DataFrame(results)

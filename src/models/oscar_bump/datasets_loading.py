@@ -1,7 +1,12 @@
 import pandas as pd
 
 def get_data():
-
+    """
+    Load the data for the oscar bump model
+    
+    Returns:
+        reviews (pd.DataFrame): The reviews dataframe
+    """
     # Get the reviews
     PATH = 'data/'
     reviews = pd.read_csv(PATH +'imdb_reviews/imdb_reviews_with_compound.csv')
