@@ -29,7 +29,17 @@ def load_data():
     nominees["countries"] = parse_str_to_list(nominees["countries"])
     non_nominees["countries"] = parse_str_to_list(non_nominees["countries"])
 
-    return nominees, non_nominees
+    # Add "nominated" column to nominees and drop "winner" column
+    nominees["nominated"] = True
+    nominees = nominees.drop(columns=["winner"])
+
+    # Add "nominated" column to non_nominees with False
+    non_nominees["nominated"] = False
+
+    # Combine both dataframes
+    data = pd.concat([nominees, non_nominees], ignore_index=True)
+
+    return data
 
 
 # Calculate feature frequencies for nominees and non-nominees
@@ -40,7 +50,7 @@ def calculate_distribution(feature_list):
     return {item: count / total for item, count in item_counts.items()}
 
 
-def plot_distribution(feature: str, top_n: int = None):
+def plot_distribution(data: pd.DataFrame, feature: str, top_n: int = None):
     """
     Generic function to plot the distribution of a specified feature.
 
@@ -48,7 +58,10 @@ def plot_distribution(feature: str, top_n: int = None):
         feature (str): Column name to analyze (e.g., 'IMDB_genres', 'countries').
         top_n (int, optional): Number of top categories to include. If None, include all.
     """
-    nominees, non_nominees = load_data()
+    # Split the data into nominees and non-nominees
+    nominees = data[data["nominated"]]
+    non_nominees = data[~data["nominated"]]
+
     nominee_distribution = calculate_distribution(nominees[feature])
     non_nominee_distribution = calculate_distribution(non_nominees[feature])
 
@@ -108,7 +121,7 @@ def plot_distribution(feature: str, top_n: int = None):
     plt.show()
 
 
-def ols(feature: str, top_n: int = 20):
+def ols(data: pd.DataFrame, feature: str, top_n: int = 20):
     """
     Perform OLS regression using the specified feature and visualize significant predictors.
 
@@ -116,18 +129,6 @@ def ols(feature: str, top_n: int = 20):
         feature (str): The feature to analyze (e.g., 'IMDB_genres').
         top_n (int): Number of top predictors to visualize if significant. Default is 20.
     """
-    # Load the data
-    nominees, non_nominees = load_data()
-
-    # Add "nominated" column to nominees and drop "winner" column
-    nominees["nominated"] = True
-    nominees = nominees.drop(columns=["winner"])
-
-    # Add "nominated" column to non_nominees with False
-    non_nominees["nominated"] = False
-
-    # Combine both dataframes
-    data = pd.concat([nominees, non_nominees], ignore_index=True)
 
     # One hot encode genres
     X = data[feature].explode()
@@ -166,12 +167,8 @@ def ols(feature: str, top_n: int = 20):
             ascending=True
         )  # Sort all by actual values
 
-    # Adjust dynamic height for visualization
-    height_per_elem = 0.5  # Height per bar
-    dynamic_height = max(8, len(sorted_params) * height_per_elem)  # Minimum height
-
     # Visualize coefficients and p-values
-    plt.figure(figsize=(10, dynamic_height))
+    plt.figure(figsize=(10, 6))
     sorted_params.plot(kind="barh")  # Horizontal bar chart
 
     plt.title(f"OLS Model Coefficients: Top {top_n} Significant Predictors")
@@ -182,12 +179,13 @@ def ols(feature: str, top_n: int = 20):
     plt.show()
 
 
-def ols_runtime():
+def ols_runtime(data: pd.DataFrame):
     """
     Fit an OLS model using runtime as the predictor for nomination.
     """
     # Load the data
-    nominees, non_nominees = load_data()
+    nominees = data[data["nominated"]]
+    non_nominees = data[~data["nominated"]]
 
     # Add "nominated" column and drop "winner" column
     nominees["nominated"] = True
@@ -217,12 +215,12 @@ def ols_runtime():
     return ols_summary_runtime
 
 
-def vif(feature: str = "IMDB_genres"):
+def vif(data: pd.DataFrame, feature: str):
     """
     Calculate the Variance Inflation Factor (VIF) for the feature.
     """
-    # Load the data
-    nominees, non_nominees = load_data()
+    nominees = data[data["nominated"]]
+    non_nominees = data[~data["nominated"]]
 
     # Add "nominated" column to oscar_movies and drop "winner" column
     nominees["nominated"] = True
@@ -248,10 +246,15 @@ def vif(feature: str = "IMDB_genres"):
     return vif_genres
 
 
-def plot_runtime_distribution():
-
-    # Load the data
-    nominees, non_nominees = load_data()
+def plot_runtime_distribution(
+    data: pd.DataFrame,
+):
+    """
+    Plot the distribution of runtime for nominees and non-nominees.
+    """
+    # Split the data into nominees and non-nominees
+    nominees = data[data["nominated"]]
+    non_nominees = data[~data["nominated"]]
 
     # Extract runtimes
     nominee_runtimes = nominees["runtime"].dropna()
