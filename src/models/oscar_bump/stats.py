@@ -1,8 +1,6 @@
 from scipy.stats import wilcoxon
-from src.models.question5.datasets_loading import get_data
-from src.models.question5.utils import *
+from src.models.oscar_bump.utils import *
 
-import seaborn as sns
 import pandas as pd
 import statsmodels.api as sm
 

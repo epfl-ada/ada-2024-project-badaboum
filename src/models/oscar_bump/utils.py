@@ -1,12 +1,7 @@
-from datetime import datetime
-from src.models.question5.datasets_loading import get_data
-from src.models.question5.utils import *
+from src.models.oscar_bump.datasets_loading import get_data
+from src.models.oscar_bump.utils import *
 
-import numpy as np
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import random
 
 def split_compound_score(type_="ceremony"):
 
