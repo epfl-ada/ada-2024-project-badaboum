@@ -3,94 +3,260 @@ import matplotlib.pyplot as plt
 from collections import Counter
 import pandas as pd
 from ..utils.data_parsing import parse_str_to_list
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
 def load_data():
 
     PATH = "data/"
-    winners = pd.read_csv(f"{PATH}oscar_movies.csv")
-    non_winners = pd.read_csv(f"{PATH}all_other_movies.csv")
+    nominees = pd.read_csv(f"{PATH}oscar_movies.csv")
+    non_nominees = pd.read_csv(f"{PATH}all_other_movies.csv")
 
     # parse genres
-    winners["IMDB_genres"] = parse_str_to_list(winners["IMDB_genres"])
-    non_winners["IMDB_genres"] = parse_str_to_list(non_winners["IMDB_genres"])
-    return winners, non_winners
+    nominees["IMDB_genres"] = parse_str_to_list(nominees["IMDB_genres"])
+    non_nominees["IMDB_genres"] = parse_str_to_list(non_nominees["IMDB_genres"])
 
-
-def plot_genre_distribution():
-
-    # Load the data
-    winners, non_winners = load_data()
-
-    # Calculate genre frequencies for winners and non-winners
-    def calculate_genre_distribution(genres_list):
-        all_genres = [
-            genre for genres in genres_list for genre in genres if genre != r"\N"
-        ]
-        genre_counts = Counter(all_genres)
-        total = sum(genre_counts.values())
-        return {genre: count / total for genre, count in genre_counts.items()}
-
-    winner_genre_distribution = calculate_genre_distribution(winners["IMDB_genres"])
-    non_winner_genre_distribution = calculate_genre_distribution(
-        non_winners["IMDB_genres"]
+    # drop \N genres
+    nominees["IMDB_genres"] = nominees["IMDB_genres"].apply(
+        lambda x: [genre for genre in x if genre != r"\N"]
+    )
+    non_nominees["IMDB_genres"] = non_nominees["IMDB_genres"].apply(
+        lambda x: [genre for genre in x if genre != r"\N"]
     )
 
-    # Align genres between winner and non-winner distributions
-    all_genres = set(winner_genre_distribution.keys()).union(
-        set(non_winner_genre_distribution.keys())
+    # parse countries
+    nominees["countries"] = parse_str_to_list(nominees["countries"])
+    non_nominees["countries"] = parse_str_to_list(non_nominees["countries"])
+
+    return nominees, non_nominees
+
+
+# Calculate feature frequencies for nominees and non-nominees
+def calculate_distribution(feature_list):
+    all_items = [item for items in feature_list for item in items]
+    item_counts = Counter(all_items)
+    total = sum(item_counts.values())
+    return {item: count / total for item, count in item_counts.items()}
+
+
+def plot_distribution(feature: str, top_n: int = None):
+    """
+    Generic function to plot the distribution of a specified feature.
+
+    Args:
+        feature (str): Column name to analyze (e.g., 'IMDB_genres', 'countries').
+        top_n (int, optional): Number of top categories to include. If None, include all.
+    """
+    nominees, non_nominees = load_data()
+    nominee_distribution = calculate_distribution(nominees[feature])
+    non_nominee_distribution = calculate_distribution(non_nominees[feature])
+
+    # Align categories by creating a union of all keys
+    all_items = set(nominee_distribution.keys()).union(
+        set(non_nominee_distribution.keys())
     )
-
-    # Create aligned genre distributions with 0 for missing genres
-    aligned_winner_genre_distribution = {
-        genre: winner_genre_distribution.get(genre, 0) for genre in all_genres
+    aligned_nominee_distribution = {
+        item: nominee_distribution.get(item, 0) for item in all_items
     }
-    aligned_non_winner_genre_distribution = {
-        genre: non_winner_genre_distribution.get(genre, 0) for genre in all_genres
+    aligned_non_nominee_distribution = {
+        item: non_nominee_distribution.get(item, 0) for item in all_items
     }
 
-    # Plotting side-by-side bars for genre distribution
-    x = np.arange(len(all_genres))  # the label locations
+    # Optionally limit to top `n` categories
+    if top_n:
+        combined_distribution = {
+            item: aligned_nominee_distribution[item]
+            + aligned_non_nominee_distribution[item]
+            for item in all_items
+        }
+        top_items = sorted(
+            combined_distribution.keys(),
+            key=lambda x: combined_distribution[x],
+            reverse=True,
+        )[:top_n]
+        aligned_nominee_distribution = {
+            item: aligned_nominee_distribution[item] for item in top_items
+        }
+        aligned_non_nominee_distribution = {
+            item: aligned_non_nominee_distribution[item] for item in top_items
+        }
+        all_items = top_items
+
+    # Plot side-by-side bars for the feature distribution
+    x = np.arange(len(all_items))  # the label locations
     width = 0.35  # the width of the bars
 
     plt.figure(figsize=(10, 6))
     plt.bar(
         x - width / 2,
-        aligned_winner_genre_distribution.values(),
+        aligned_nominee_distribution.values(),
         width,
-        label="Winners",
+        label="Nominees",
     )
     plt.bar(
         x + width / 2,
-        aligned_non_winner_genre_distribution.values(),
+        aligned_non_nominee_distribution.values(),
         width,
-        label="Non-Winners",
+        label="Non-nominees",
     )
-    plt.xlabel("Genres")
+    plt.xlabel(feature.capitalize())
     plt.ylabel("Proportion")
-    plt.title("Genre Distribution: Winners vs. Non-Winners")
+    plt.title(f"{feature.capitalize()}: nominees vs. Non-nominees")
     plt.legend()
-    plt.xticks(x, all_genres, rotation=90)
+    plt.xticks(x, all_items, rotation=90)
     plt.show()
+
+
+def ols(feature: str, top_n: int = None):
+    """
+    Perform OLS regression using the specified feature and visualize top_n coefficients.
+
+    Args:
+        feature (str): The feature to analyze (e.g., 'IMDB_genres').
+        top_n (int, optional): Number of top predictors to visualize. If None, visualize all.
+    """
+    # Load the data
+    nominees, non_nominees = load_data()
+
+    # Add "nominated" column to oscar_movies and drop "winner" column
+    nominees["nominated"] = True
+    nominees = nominees.drop(columns=["winner"])
+
+    # Add "nominated" column to all_other_movies with False
+    non_nominees["nominated"] = False
+
+    # Combine both dataframes
+    data = pd.concat([nominees, non_nominees], ignore_index=True)
+
+    # One hot encode genres
+    X = data[feature].explode()
+    X = pd.get_dummies(X).groupby(level=0).sum()
+    y = data["nominated"]  # Target
+
+    # Add a constant for intercept
+    X = sm.add_constant(X)
+
+    # Fit the OLS model
+    ols_model = sm.OLS(y, X).fit()
+
+    # Summary of the genre-focused OLS model
+    ols_summary = ols_model.summary()
+
+    # Display the OLS model summary
+    print(ols_summary)
+
+    # Get coefficients excluding the intercept
+    params = ols_model.params[1:]  # Exclude intercept
+
+    # Select top_n by absolute value
+    if top_n:
+        top_params = params.abs().nlargest(top_n).index  # Get top_n absolute values
+        sorted_params = params.loc[top_params].sort_values(
+            ascending=True
+        )  # Sort by actual values
+    else:
+        sorted_params = params.sort_values(ascending=True)  # Sort all by actual values
+
+    # Adjust dynamic height for visualization
+    height_per_elem = 0.5  # Height per bar
+    dynamic_height = max(8, len(sorted_params) * height_per_elem)  # Minimum height
+
+    # Visualize coefficients and p-values
+    plt.figure(figsize=(10, 6))
+    sorted_params.plot(kind="barh")  # Horizontal bar chart
+
+    plt.title(f"OLS Model Coefficients: Top {top_n or 'All'} Predictors")
+    plt.xlabel("Coefficient")
+    plt.ylabel(feature)
+    plt.axvline(0, color="red", linestyle="--")  # Reference line at 0
+    plt.tight_layout()
+    plt.show()
+
+
+def ols_runtime():
+    """
+    Fit an OLS model using runtime as the predictor for nomination.
+    """
+    # Load the data
+    nominees, non_nominees = load_data()
+
+    # Add "nominated" column and drop "winner" column
+    nominees["nominated"] = True
+    nominees = nominees.drop(columns=["winner"])
+
+    non_nominees["nominated"] = False
+
+    # Combine both datasets
+    data = pd.concat([nominees, non_nominees], ignore_index=True)
+
+    # Drop rows with missing runtime
+    data = data.dropna(subset=["runtime"])
+
+    # Define the predictor (X) and target (y)
+    X_runtime = data[["runtime"]]
+    y_nominated = data["nominated"]
+
+    # Add a constant for intercept
+    X_runtime = sm.add_constant(X_runtime)
+
+    # Fit the OLS model
+    ols_model_runtime = sm.OLS(y_nominated, X_runtime).fit()
+
+    # Summary of the runtime-focused OLS model
+    ols_summary_runtime = ols_model_runtime.summary()
+
+    return ols_summary_runtime
+
+
+def vif(feature: str = "IMDB_genres"):
+    """
+    Calculate the Variance Inflation Factor (VIF) for the feature.
+    """
+    # Load the data
+    nominees, non_nominees = load_data()
+
+    # Add "nominated" column to oscar_movies and drop "winner" column
+    nominees["nominated"] = True
+    nominees = nominees.drop(columns=["winner"])
+
+    # Add "nominated" column to all_other_movies with False
+    non_nominees["nominated"] = False
+
+    # Combine both dataframes
+    data = pd.concat([nominees, non_nominees], ignore_index=True)
+
+    # One hot encode genres
+    X_genres = data[feature].explode()
+    X_genres = pd.get_dummies(X_genres).groupby(level=0).sum()
+
+    # Calculate the Variance Inflation Factor (VIF)
+    vif_genres = pd.DataFrame()
+    vif_genres["feature"] = X_genres.columns
+    vif_genres["VIF"] = [
+        variance_inflation_factor(X_genres.values, i) for i in range(X_genres.shape[1])
+    ]
+
+    return vif_genres
 
 
 def plot_runtime_distribution():
 
     # Load the data
-    winners, non_winners = load_data()
+    nominees, non_nominees = load_data()
 
     # Extract runtimes
-    winner_runtimes = winners["runtime"].dropna()
-    non_winner_runtimes = non_winners["runtime"].dropna()
+    nominee_runtimes = nominees["runtime"].dropna()
+    non_nominee_runtimes = non_nominees["runtime"].dropna()
 
     # Plot box plot comparison without showing outliers
     plt.figure(figsize=(6, 4))
     plt.boxplot(
-        [winner_runtimes, non_winner_runtimes],
-        labels=["Winners", "Non-Winners"],
+        [nominee_runtimes, non_nominee_runtimes],
+        labels=["nominees", "Non-nominees"],
         showfliers=False,
     )
     plt.xlabel("Category")
     plt.ylabel("Runtime (minutes)")
-    plt.title("Runtime Distribution (Without Outliers): Winners vs. Non-Winners")
+    plt.title("Runtime Distribution (Without Outliers): nominees vs. Non-nominees")
     plt.show()
