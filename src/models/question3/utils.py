@@ -12,8 +12,8 @@ def load_data_Q3():
     Load dataframe used for question 3
     """
     df_movies = pd.read_csv('./data/oscar_movies.csv')
-    df_director = pd.read_csv('./data/title.crew.tsv', sep='\t')
-    df_name = pd.read_csv('./data/name.basics.tsv', sep='\t')
+    df_director = pd.read_csv('./data/imdb/title.crew.tsv', sep='\t')
+    df_name = pd.read_csv('./data/imdb/name.basics.tsv', sep='\t')
 
 
 
@@ -29,7 +29,7 @@ def load_data_Q3():
     "runtimeMinutes": "string",
     "genres": "string"
     }
-    df_title = pd.read_csv('./data/title.basics.tsv', sep='\t', dtype=dtype_title, na_values="\\N")
+    df_title = pd.read_csv('./data/imdb/title.basics.tsv', sep='\t', dtype=dtype_title, na_values="\\N")
 
 
 
