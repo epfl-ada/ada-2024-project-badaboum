@@ -293,7 +293,6 @@ def plot_proportions_change():
     plt.xlabel("Sentiment Categories")
     plt.ylabel("Change in Proportion")
     plt.title("Change in Compound Scores Distribution After the Nomination")
-    #plt.legend()
     plt.tight_layout()
     
     # Show the plot for the nomination
@@ -308,7 +307,6 @@ def plot_proportions_change():
     plt.xlabel("Sentiment Categories")
     plt.ylabel("Change in Proportion")
     plt.title("Change in Compound Scores Distribution After Ceremony: Winners vs. Losers")
-    #plt.legend()
     plt.tight_layout()
     
     # Show the plot for the nomination

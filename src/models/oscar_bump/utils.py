@@ -15,7 +15,7 @@ def split_compound_score(type_="ceremony"):
     # Group reviews by movie
     df_grouped = df.groupby('imdb_id')
 
-    for movie_id, group in df_grouped:
+    for _, group in df_grouped:
         
         # Get the ceremony date for the current movie
         date = group['ceremony_date'].iloc[0]  

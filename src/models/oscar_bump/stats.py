@@ -3,6 +3,7 @@ from src.models.oscar_bump.utils import *
 
 import pandas as pd
 import statsmodels.api as sm
+import random
 
 def perform_regression_compound(type_score="all", type_date="ceremony"):
     
