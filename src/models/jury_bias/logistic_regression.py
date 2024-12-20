@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, roc_auc_score, roc_curve
 from sklearn.preprocessing import StandardScaler
-from utils import balance_dataset
+from src.models.jury_bias.utils import balance_dataset
 
 
 def preprocess_data(data, feature_columns, target="nominated"):

@@ -1,7 +1,7 @@
 import pandas as pd
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
-from utils import balance_dataset, filter_high_vif
+from src.models.jury_bias.utils import balance_dataset, filter_high_vif
 
 
 def ols_categorical(data: pd.DataFrame, feature: str, target="nominated"):

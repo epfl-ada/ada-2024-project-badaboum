@@ -1,6 +1,4 @@
 import pandas as pd
-from collections import Counter
-from utils import parse_str_to_list
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.utils import resample
 

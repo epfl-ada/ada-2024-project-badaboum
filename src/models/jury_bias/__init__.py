@@ -4,3 +4,4 @@ from src.models.jury_bias.distribution import (
 )
 from src.models.jury_bias.least_squares import *
 from src.models.jury_bias.logistic_regression import logistic_regression
+from src.models.jury_bias.utils import load_data
