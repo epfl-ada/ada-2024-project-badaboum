@@ -5,6 +5,9 @@ DATA_PATH = 'data/'
 def load_reviews_augmented():
     """
     Load the reviews and combines them with more info about the movie reviewed (ceremony date, year, winner/looser)
+    
+    Returns:
+        reviews (pd.DataFrame): The reviews with the additional info
     """
     # Get the reviews
     reviews = pd.read_csv(DATA_PATH +'imdb_reviews/imdb_reviews_with_compound.csv')

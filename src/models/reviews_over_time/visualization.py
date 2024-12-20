@@ -17,6 +17,7 @@ def plot_compound_scores_individual(imdb_id):
     # Prepare the data
     positive_reviews, negative_reviews = split_compound_scores_individual(df_init, imdb_id)
 
+    # Plot the compound scores
     sns.scatterplot(data=positive_reviews, x="date", y="text_compound")
     
     sns.scatterplot(data=negative_reviews, x="date", y="text_compound") 
@@ -79,6 +80,7 @@ def plot_oscar_timeline_unique(imdb_id,type_):
     ylabel = ""
     df = df_init
 
+    # Select the data to plot
     if(type_ == "compound"):
         title = "Compound score over time for the movie: "
         xlabel = "Date"

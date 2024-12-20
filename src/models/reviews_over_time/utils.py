@@ -4,6 +4,15 @@ from src.models.reviews_over_time.datasets_loading import load_reviews_augmented
 def find_ceremony_date(df, imdb_id):
     """ 
     Find the ceremony date of a specific movie
+    
+    Parameters:
+        df (pd.DataFrame): DataFrame containing the reviews, each with 'imdb_id', 
+                           'date', 'ceremony_date', and 'text_compound' columns.
+                           
+        imdb_id (str): ID of the movie we want to find the ceremony date of
+    
+    Returns:
+        str: The ceremony date of the movie
     """
     return df[df["imdb_id"] == imdb_id].iloc[0].ceremony_date
 
@@ -56,6 +65,7 @@ def split_compound_scores_individual(df, imdb_id):
         pd.DataFrame, pd.DataFrame: Two DataFrames containing the positive and 
                                     negative reviews.
     """
+    # Find the ceremony date of the movie
     ceremony_date = find_ceremony_date(df, imdb_id)
     
     # Filter only around the oscar bumpy
@@ -116,9 +126,14 @@ def select_visualization_groups(type_1, type_2):
     Parameters:
         type_1 (str): The first type of movie. It can be "pos_glob", "pos_win", "pos_loos", "neg_win"
         type_2 (str): The second type of movie. It can be "neg_glob", "neg_win", "neg_loos", "pos_loos"
+        
+    Returns:
+        pd.DataFrame, pd.DataFrame: Two DataFrames containing the two types of reviews.
     """
+    # Load the reviews
     df = load_reviews_augmented()
     
+    # Split the reviews into positive and negative reviews for each scenario
     positive_reviews_global, negative_reviews_global = split_compound_scores_global(df)
     positive_reviews_winners, negative_reviews_winners = split_compound_scores_global(df, type_="winners")
     positive_reviews_loosers, negative_reviews_loosers = split_compound_scores_global(df, type_="loosers")
@@ -126,6 +141,7 @@ def select_visualization_groups(type_1, type_2):
     df_1 = 0
     df_2 = 0 
 
+    # Select the data
     if(type_1 == "pos_glob"):
         df_1 = positive_reviews_global
     elif(type_1 == "pos_win"):
