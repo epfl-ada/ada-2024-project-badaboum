@@ -187,7 +187,7 @@ def balance_dataset(data, target_column="nominated"):
     return balanced_data
 
 
-def ols_categorical(data: pd.DataFrame, feature: str, top_n: int = 20):
+def ols_categorical(data: pd.DataFrame, feature: str):
     """
     Perform OLS regression on a balanced dataset and visualize significant predictors.
 
@@ -217,30 +217,6 @@ def ols_categorical(data: pd.DataFrame, feature: str, top_n: int = 20):
 
     # Display the OLS model summary
     print(ols_summary)
-
-    # Get coefficients and p-values excluding the intercept
-    params = ols_model.params[1:]  # Exclude intercept
-    p_values = ols_model.pvalues[1:]  # Exclude intercept
-
-    # Filter significant predictors (p < 0.05)
-    significant_params = params[p_values < 0.05]
-
-    # Select top_n by absolute value
-    if top_n:
-        top_params = significant_params.abs().nlargest(top_n).index
-        sorted_params = significant_params.loc[top_params].sort_values(ascending=True)
-    else:
-        sorted_params = significant_params.sort_values(ascending=True)
-
-    # Visualize coefficients
-    plt.figure(figsize=(10, 6))
-    sorted_params.plot(kind="barh")
-    plt.title(f"OLS Model Coefficients: Top {top_n} Significant Predictors")
-    plt.xlabel("Coefficient")
-    plt.ylabel(feature)
-    plt.axvline(0, color="red", linestyle="--")
-    plt.tight_layout()
-    plt.show()
 
 
 def ols_continuous(data: pd.DataFrame, feature: str):
@@ -294,3 +270,80 @@ def plot_runtime_distribution(
     plt.ylabel("Runtime (minutes)")
     plt.title("Runtime Distribution (Without Outliers): nominees vs. Non-nominees")
     plt.show()
+
+
+def gls_categorical(data: pd.DataFrame, feature: str):
+    """
+    Perform GLS regression on a balanced dataset and visualize significant predictors.
+
+    Args:
+        data (pd.DataFrame): Input dataset.
+        feature (str): The feature to analyze (e.g., 'IMDB_genres').
+        top_n (int): Number of top predictors to visualize if significant.
+    """
+    # Balance the dataset
+    balanced_data = balance_dataset(data)
+
+    # One hot encode genres
+    X = balanced_data[feature].explode()
+    X = pd.get_dummies(X).groupby(level=0).sum()
+    y = balanced_data["nominated"]
+
+    X = filter_high_vif(X)
+
+    # Add a constant for intercept
+    X = sm.add_constant(X)
+
+    # Fit the GLS model
+    gls_model = sm.GLS(y, X).fit()
+
+    # Summary of the GLS model
+    gls_summary = gls_model.summary()
+
+    # Display the GLS model summary
+    print(gls_summary)
+
+    # Get coefficients and p-values excluding the intercept
+    params = gls_model.params[1:]  # Exclude intercept
+    p_values = gls_model.pvalues[1:]  # Exclude intercept
+
+    # Filter significant predictors (p < 0.05)
+    significant_params = params[p_values < 0.05]
+
+    sorted_params = significant_params.sort_values(ascending=True)
+
+    # Visualize coefficients
+    plt.figure(figsize=(10, 6))
+    sorted_params.plot(kind="barh")
+    plt.title(f"GLS Model Coefficients: Significant Predictors")
+    plt.xlabel("Coefficient")
+    plt.ylabel(feature)
+    plt.axvline(0, color="red", linestyle="--")
+    plt.tight_layout()
+    plt.show()
+
+
+def gls_continuous(data: pd.DataFrame, feature: str):
+    """
+    Perform GLS regression on runtime with a balanced dataset.
+    """
+    # Balance the dataset
+    balanced_data = balance_dataset(data)
+
+    # Drop rows with missing runtime
+    balanced_data = balanced_data.dropna(subset=["runtime"])
+
+    # Define the predictor (X) and target (y)
+    X_runtime = balanced_data[[feature]]
+    y_nominated = balanced_data["nominated"]
+
+    # Add a constant for intercept
+    X_runtime = sm.add_constant(X_runtime)
+
+    # Fit the GLS model
+    gls_model_runtime = sm.GLS(y_nominated, X_runtime).fit()
+
+    # Summary of the runtime-focused GLS model
+    gls_summary_runtime = gls_model_runtime.summary()
+
+    print(gls_summary_runtime)
