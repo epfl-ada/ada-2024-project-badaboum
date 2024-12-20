@@ -23,7 +23,7 @@ def plot_top_actors(df_actor, k):
 
 
 
-def count_won_oscar_actor(df, k):
+def count_won_oscar_actor(df):
 
     df_movies = pd.read_csv('./data/oscar_movies.csv')
     winning_movies = df_movies[df_movies['winner']]['primaryTitle'].values
@@ -43,18 +43,16 @@ def count_won_oscar_actor(df, k):
             'Oscar won' : list(count_oscar.values())
 
         }
-    ).sort_values(by='Oscar won', ascending=False).head(k)
+    ).sort_values(by='Oscar won', ascending=False)#.head(k)
 
+    for num in range(count_oscar['Oscar won'].min(), count_oscar['Oscar won'].max()+1):
+        count = len(count_oscar[count_oscar['Oscar won'] == num])
+        print(f"{count} actors have won {num} Oscars")
+        
 
-    count_oscar.set_index('Actors').plot(kind='bar', color='skyblue', alpha=0.8, edgecolor='black')
+    count_oscar = count_oscar[count_oscar['Oscar won'] > 2]
 
-    plt.title(f"Top {k} actors with the most oscars")
-    plt.xlabel("Actors")
-    plt.ylabel("Number of Oscars Won")
-    plt.xticks(rotation=45, ha='right')
-    plt.yticks(range(0, 4))
-    plt.tight_layout()
-    plt.show()
+    print(f"Actors who have won more than 2 Oscars: {' '.join(count_oscar['Actors'].values)}")
 
 
 
