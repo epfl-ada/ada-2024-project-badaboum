@@ -41,10 +41,11 @@ You have two options for obtaining the datasets:
         - [CMU Dataset](https://www.cs.cmu.edu/~ark/personas/)
         - [IMDb Dataset](https://datasets.imdbws.com/)
     2. Place the datasets in the ```data``` directory.
-    3. Run the following scripts to create the remaining data:
+    3. Run the following script to create the remaining data:
         ```
         main_script.py
         ```
+    4. Create a  ```oscar_nomination_dates.csv``` by looking for each nomination date for each Oscar year.
 
 Your data directory should look like this:
 ```
@@ -68,8 +69,10 @@ Your data directory should look like this:
 │       ├── tvtropes.clusters.txt
 |
 ├── all_other_movies.csv <- All movies that are not Oscar winners nor nominees
-├── oscar_movies.csv     <- Oscar winners, merged with IMDb and CMU data
-└── oscar_winners_1929_2016.csv     <- Oscar winners, scrapped from the Oscars website
+├── oscar_movies_all_categories.csv <- Oscar winners and nominees, merged with IMDb and CMU data, all categories
+├── oscar_movies.csv     <- Oscar winners and nominees, merged with IMDb and CMU data, only Best Picture category
+├── oscar_nomination_dates.csv <- Nomination dates for each Oscar ceremony
+└── oscar_winners_1929_2016.csv     <- Oscar winners and nominees, scrapped from the Oscars website
 ```
 
 #### Step 3: Run the Results Notebook
