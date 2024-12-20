@@ -106,7 +106,7 @@ This project explores the relationship between Oscar-winning films and audience 
 - How do ratings of Oscar-winning films evolve over time—do they "age well" with audiences?
 - Is there a correlation between high-profile actors/directors and Oscar wins, regardless of ratings?
 - Does winning an Oscar lead to a measurable increase in ratings or review counts (i.e., the "Oscar bump")?
-- Are there discernible biases within Oscar winners, such as genre, nationality, or star power, that differ from audience preferences?
+- Are there discernible biases within Oscar nominees, such as genre, nationality, or runtime?
 
 
 ### Methods
@@ -164,8 +164,8 @@ Week 7 (Dec 9 - Dec 16):
 Each member was responsible for at least one research question for Milestone 2, if the question was kept, they continued to work on it for the final submission. The other members would provide feedback and suggestions to improve the analysis. The team would meet weekly to discuss progress, challenges, and next steps. The team would also share resources and insights to support each other’s work.
 The other tasks were distributed as evenly as possible, based on the workload of the assigned research questions.
 #### Contributions of each team member:
-- Yoann: 1. Ratings Comparison: Oscar Winners vs. Nominees
-- Quentin: 2. Ratings Over Time: Do Oscar Winners "Age Well"? and 4. The Oscar Bump: Rating and Review Increases Post-Win
-- Matya: 3. Impact of High-Profile Actors/Directors on Oscar Wins
-- Camille: 5. Oscars jury vs Audience biases
+- Yoann: Ratings Comparison: Oscar Winners vs. Nominees
+- Quentin: Ratings Over Time: Do Oscar Winners "Age Well"? and The Oscar Bump: Rating and Review Increases Post-Win
+- Matya: Impact of High-Profile Actors/Directors on Oscar Wins
+- Camille: Oscars (nomination) jury preferences
 - Sophia: Problem formulation, Data Processing and Data story
