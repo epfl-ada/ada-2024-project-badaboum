@@ -104,10 +104,10 @@ def plot_runtime_distribution(
     plt.figure(figsize=(6, 4))
     plt.boxplot(
         [nominee_runtimes, non_nominee_runtimes],
-        labels=["nominees", "Non-nominees"],
+        labels=["Nominees", "Non-nominees"],
         showfliers=False,
     )
     plt.xlabel("Category")
     plt.ylabel("Runtime (minutes)")
-    plt.title("Runtime Distribution (Without Outliers): nominees vs. Non-nominees")
+    plt.title("Runtime Distribution: nominees vs. Non-nominees")
     plt.show()
