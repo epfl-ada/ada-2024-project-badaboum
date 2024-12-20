@@ -5,6 +5,7 @@ import pandas as pd
 from ..utils.data_parsing import parse_str_to_list
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.utils import resample
 
 
 def load_data():
@@ -121,19 +122,47 @@ def plot_distribution(data: pd.DataFrame, feature: str, top_n: int = None):
     plt.show()
 
 
-def ols(data: pd.DataFrame, feature: str, top_n: int = 20):
+def balance_dataset(data, target_column="nominated"):
     """
-    Perform OLS regression using the specified feature and visualize significant predictors.
+    Balance the dataset by oversampling the minority class.
 
     Args:
-        feature (str): The feature to analyze (e.g., 'IMDB_genres').
-        top_n (int): Number of top predictors to visualize if significant. Default is 20.
+        data (pd.DataFrame): The dataset to balance.
+        target_column (str): The column to balance on.
+
+    Returns:
+        pd.DataFrame: Balanced dataset.
     """
+    majority = data[data[target_column] == False]
+    minority = data[data[target_column] == True]
+
+    # Oversample the minority class
+    minority_upsampled = resample(
+        minority, replace=True, n_samples=len(majority), random_state=42
+    )
+
+    # Combine the balanced dataset
+    balanced_data = pd.concat([majority, minority_upsampled]).reset_index(drop=True)
+
+    return balanced_data
+
+
+def ols_categorical(data: pd.DataFrame, feature: str, top_n: int = 20):
+    """
+    Perform OLS regression on a balanced dataset and visualize significant predictors.
+
+    Args:
+        data (pd.DataFrame): Input dataset.
+        feature (str): The feature to analyze (e.g., 'IMDB_genres').
+        top_n (int): Number of top predictors to visualize if significant.
+    """
+    # Balance the dataset
+    balanced_data = balance_dataset(data)
 
     # One hot encode genres
-    X = data[feature].explode()
+    X = balanced_data[feature].explode()
     X = pd.get_dummies(X).groupby(level=0).sum()
-    y = data["nominated"]  # Target
+    y = balanced_data["nominated"]
 
     # Add a constant for intercept
     X = sm.add_constant(X)
@@ -141,7 +170,7 @@ def ols(data: pd.DataFrame, feature: str, top_n: int = 20):
     # Fit the OLS model
     ols_model = sm.OLS(y, X).fit()
 
-    # Summary of the genre-focused OLS model
+    # Summary of the OLS model
     ols_summary = ols_model.summary()
 
     # Display the OLS model summary
@@ -156,52 +185,35 @@ def ols(data: pd.DataFrame, feature: str, top_n: int = 20):
 
     # Select top_n by absolute value
     if top_n:
-        top_params = (
-            significant_params.abs().nlargest(top_n).index
-        )  # Get top_n absolute values
-        sorted_params = significant_params.loc[top_params].sort_values(
-            ascending=True
-        )  # Sort by actual values
+        top_params = significant_params.abs().nlargest(top_n).index
+        sorted_params = significant_params.loc[top_params].sort_values(ascending=True)
     else:
-        sorted_params = significant_params.sort_values(
-            ascending=True
-        )  # Sort all by actual values
+        sorted_params = significant_params.sort_values(ascending=True)
 
-    # Visualize coefficients and p-values
+    # Visualize coefficients
     plt.figure(figsize=(10, 6))
-    sorted_params.plot(kind="barh")  # Horizontal bar chart
-
+    sorted_params.plot(kind="barh")
     plt.title(f"OLS Model Coefficients: Top {top_n} Significant Predictors")
     plt.xlabel("Coefficient")
     plt.ylabel(feature)
-    plt.axvline(0, color="red", linestyle="--")  # Reference line at 0
+    plt.axvline(0, color="red", linestyle="--")
     plt.tight_layout()
     plt.show()
 
 
-def ols_runtime(data: pd.DataFrame):
+def ols_numerical(data: pd.DataFrame, feature: str):
     """
-    Fit an OLS model using runtime as the predictor for nomination.
+    Perform OLS regression on runtime with a balanced dataset.
     """
-    # Load the data
-    nominees = data[data["nominated"]]
-    non_nominees = data[~data["nominated"]]
-
-    # Add "nominated" column and drop "winner" column
-    nominees["nominated"] = True
-    nominees = nominees.drop(columns=["winner"])
-
-    non_nominees["nominated"] = False
-
-    # Combine both datasets
-    data = pd.concat([nominees, non_nominees], ignore_index=True)
+    # Balance the dataset
+    balanced_data = balance_dataset(data)
 
     # Drop rows with missing runtime
-    data = data.dropna(subset=["runtime"])
+    balanced_data = balanced_data.dropna(subset=["runtime"])
 
     # Define the predictor (X) and target (y)
-    X_runtime = data[["runtime"]]
-    y_nominated = data["nominated"]
+    X_runtime = balanced_data[["runtime"]]
+    y_nominated = balanced_data["nominated"]
 
     # Add a constant for intercept
     X_runtime = sm.add_constant(X_runtime)
@@ -212,7 +224,7 @@ def ols_runtime(data: pd.DataFrame):
     # Summary of the runtime-focused OLS model
     ols_summary_runtime = ols_model_runtime.summary()
 
-    return ols_summary_runtime
+    print(ols_summary_runtime)
 
 
 def vif(data: pd.DataFrame, feature: str):
