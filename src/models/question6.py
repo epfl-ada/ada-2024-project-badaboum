@@ -122,6 +122,46 @@ def plot_distribution(data: pd.DataFrame, feature: str, top_n: int = None):
     plt.show()
 
 
+def calculate_vif(X: pd.DataFrame):
+    """
+    Calculate Variance Inflation Factor (VIF) for each feature.
+    Args:
+        X (pd.DataFrame): DataFrame of predictors.
+
+    Returns:
+        pd.DataFrame: DataFrame with features and their corresponding VIF scores.
+    """
+    vif_data = pd.DataFrame()
+    vif_data["Feature"] = X.columns
+    vif_data["VIF"] = [
+        variance_inflation_factor(X.values, i) for i in range(X.shape[1])
+    ]
+    return vif_data
+
+
+def filter_high_vif(X: pd.DataFrame, threshold=5.0):
+    """
+    Remove features with high VIF scores from the dataset.
+
+    Args:
+        X (pd.DataFrame): DataFrame of predictors.
+        threshold (float): VIF score threshold above which features are removed.
+
+    Returns:
+        pd.DataFrame: Filtered DataFrame with low VIF features.
+    """
+    while True:
+        vif = calculate_vif(X)
+        max_vif = vif["VIF"].max()
+        if max_vif > threshold:
+            feature_to_drop = vif.loc[vif["VIF"] == max_vif, "Feature"].values[0]
+            print(f"Dropping feature '{feature_to_drop}' with VIF: {max_vif}")
+            X = X.drop(columns=[feature_to_drop])
+        else:
+            break
+    return X
+
+
 def balance_dataset(data, target_column="nominated"):
     """
     Balance the dataset by oversampling the minority class.
@@ -164,6 +204,8 @@ def ols_categorical(data: pd.DataFrame, feature: str, top_n: int = 20):
     X = pd.get_dummies(X).groupby(level=0).sum()
     y = balanced_data["nominated"]
 
+    X = filter_high_vif(X)
+
     # Add a constant for intercept
     X = sm.add_constant(X)
 
@@ -201,7 +243,7 @@ def ols_categorical(data: pd.DataFrame, feature: str, top_n: int = 20):
     plt.show()
 
 
-def ols_numerical(data: pd.DataFrame, feature: str):
+def ols_continuous(data: pd.DataFrame, feature: str):
     """
     Perform OLS regression on runtime with a balanced dataset.
     """
@@ -225,37 +267,6 @@ def ols_numerical(data: pd.DataFrame, feature: str):
     ols_summary_runtime = ols_model_runtime.summary()
 
     print(ols_summary_runtime)
-
-
-def vif(data: pd.DataFrame, feature: str):
-    """
-    Calculate the Variance Inflation Factor (VIF) for the feature.
-    """
-    nominees = data[data["nominated"]]
-    non_nominees = data[~data["nominated"]]
-
-    # Add "nominated" column to oscar_movies and drop "winner" column
-    nominees["nominated"] = True
-    nominees = nominees.drop(columns=["winner"])
-
-    # Add "nominated" column to all_other_movies with False
-    non_nominees["nominated"] = False
-
-    # Combine both dataframes
-    data = pd.concat([nominees, non_nominees], ignore_index=True)
-
-    # One hot encode genres
-    X_genres = data[feature].explode()
-    X_genres = pd.get_dummies(X_genres).groupby(level=0).sum()
-
-    # Calculate the Variance Inflation Factor (VIF)
-    vif_genres = pd.DataFrame()
-    vif_genres["feature"] = X_genres.columns
-    vif_genres["VIF"] = [
-        variance_inflation_factor(X_genres.values, i) for i in range(X_genres.shape[1])
-    ]
-
-    return vif_genres
 
 
 def plot_runtime_distribution(
