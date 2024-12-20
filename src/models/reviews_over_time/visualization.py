@@ -4,9 +4,13 @@ import matplotlib.pyplot as plt
 from src.models.reviews_over_time.datasets_loading import load_reviews_augmented
 from src.models.reviews_over_time.utils import *
 
-
 def plot_compound_scores_individual(imdb_id):
+    """
+    Plot the compound scores of the reviews over time for a specific movie.
     
+    Parameters:
+        imdb_id (str): The IMDb ID of the movie.
+    """
     # Get the data
     df_init = load_reviews_augmented()
 
@@ -24,7 +28,13 @@ def plot_compound_scores_individual(imdb_id):
 
 
 def plot_compound_scores_global(type_1, type_2):
+    """
+    Plot the compound scores of the reviews over time for two different types of movies.
     
+    Parameters:
+        type_1 (str): The first type of movie.
+        type_2 (str): The second type of movie.
+    """
     # Select the data
     df_1, df_2 = select_visualization_groups(type_1, type_2)
 
@@ -47,7 +57,13 @@ def plot_compound_scores_global(type_1, type_2):
 
 
 def plot_oscar_timeline_unique(imdb_id,type_):
-
+    """
+    Plot the compound scores or the review count over time in a line for a specific movie.
+    
+    Parameters:
+        imdb_id (str): The IMDb ID of the movie.
+        type_ (str): The type of the plot we want to generate. It can be "compound" or "count"
+    """
     # Get the data
     df_init = load_reviews_augmented()
 

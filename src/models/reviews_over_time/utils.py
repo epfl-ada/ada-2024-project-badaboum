@@ -56,7 +56,6 @@ def split_compound_scores_individual(df, imdb_id):
         pd.DataFrame, pd.DataFrame: Two DataFrames containing the positive and 
                                     negative reviews.
     """
-    
     ceremony_date = find_ceremony_date(df, imdb_id)
     
     # Filter only around the oscar bumpy
@@ -111,7 +110,13 @@ def split_compound_scores_global(df, type_="all"):
 
 
 def select_visualization_groups(type_1, type_2):
-
+    """
+    Selects the groups of reviews we want to visualize.
+    
+    Parameters:
+        type_1 (str): The first type of movie. It can be "pos_glob", "pos_win", "pos_loos", "neg_win"
+        type_2 (str): The second type of movie. It can be "neg_glob", "neg_win", "neg_loos", "pos_loos"
+    """
     df = load_reviews_augmented()
     
     positive_reviews_global, negative_reviews_global = split_compound_scores_global(df)
