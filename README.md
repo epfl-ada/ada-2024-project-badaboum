@@ -86,9 +86,8 @@ The directory structure of new project looks like this:
 ├── data                        <- Project data files
 │
 ├── src                         <- Source code
-│   ├── models                          <- Model directory
-│   ├── utils                           <- Utility directory
-│   ├── scripts                         <- Shell scripts
+│   ├── models                          <- Model directory, definition of all the methods which are in the results notebook
+│   └── scripts                         <- Shell scripts
 │
 ├── results.ipynb               <- a well-structured notebook showing the results
 │
