@@ -236,7 +236,7 @@ def match_and_plot(df):
 
 
 
-def count_won_oscar(df, k):
+def count_won_oscar(df):
 
     directors = df['directors'].unique()
     count_oscar = {}
@@ -250,15 +250,13 @@ def count_won_oscar(df, k):
             'Directors': list(count_oscar.keys()),
             'Oscar won' : list(count_oscar.values())
         }
-    ).sort_values(by='Oscar won', ascending=False).head(k)
+    ).sort_values(by='Oscar won', ascending=False)#.head(k)
 
 
-    count_oscar.set_index('Directors').plot(kind='bar', color='skyblue', alpha=0.8, edgecolor='black')
+    for num in range(count_oscar['Oscar won'].min(), count_oscar['Oscar won'].max()+1):
+        count = len(count_oscar[count_oscar['Oscar won'] == num])
+        print(f"{count} directors have won {num} Oscars")
 
-    plt.title(f"Top {k} directors with the most oscars")
-    plt.xlabel("Directors")
-    plt.ylabel("Number of Oscars Won")
-    plt.xticks(rotation=45, ha='right')
-    plt.yticks(range(0, 3))
-    plt.tight_layout()
-    plt.show()
+    count_oscar = count_oscar[count_oscar['Oscar won'] > 1]
+
+    print(f"Directors who have won more than 1 Oscar: {' '.join(count_oscar['Directors'].values)}")
