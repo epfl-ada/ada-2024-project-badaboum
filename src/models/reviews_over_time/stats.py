@@ -1,6 +1,6 @@
 from scipy.stats import ks_2samp
-from src.models.question2.datasets_loading import load_reviews_augmented
-from src.models.question2.utils import *
+from src.models.reviews_over_time.datasets_loading import load_reviews_augmented
+from src.models.reviews_over_time.utils import *
 
 def print_ks_test_review_dates(type_1, type_2):
     """
