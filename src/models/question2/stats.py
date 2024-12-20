@@ -1,4 +1,3 @@
-import pandas as pd
 from scipy.stats import ks_2samp
 from src.models.question2.datasets_loading import load_reviews_augmented
 from src.models.question2.utils import *

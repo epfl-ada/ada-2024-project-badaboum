@@ -1,5 +1,4 @@
 import pandas as pd
-from datetime import datetime
 from src.models.question2.datasets_loading import load_reviews_augmented
 
 def find_ceremony_date(df, imdb_id):

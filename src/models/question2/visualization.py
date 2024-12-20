@@ -1,4 +1,3 @@
-import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -26,9 +25,6 @@ def plot_compound_scores_individual(imdb_id):
 
 def plot_compound_scores_global(type_1, type_2):
     
-    # Get the data
-    df_init = load_reviews_augmented()
-
     # Select the data
     df_1, df_2 = select_visualization_groups(type_1, type_2)
 
