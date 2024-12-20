@@ -46,6 +46,7 @@ You have two options for obtaining the datasets:
         main_script.py
         ```
     4. Create a  ```oscar_nomination_dates.csv``` by looking for each nomination date for each Oscar year.
+
 Your data directory should look like this:
 ```
 ├── imdb                  <- IMDb dataset
