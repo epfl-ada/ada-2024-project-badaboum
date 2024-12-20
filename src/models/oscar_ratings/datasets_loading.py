@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.models.question1.category_mapping import map_categories
+from src.models.oscar_ratings.category_mapping import map_categories
 
 DATA_PATH = "data/"
 

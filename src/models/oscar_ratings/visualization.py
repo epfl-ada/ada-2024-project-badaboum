@@ -1,17 +1,17 @@
 import matplotlib.pyplot as plt
-from src.models.question1.kmean_categories import (
+from src.models.oscar_ratings.kmean_categories import (
     get_embedded_categories,
     perform_kmeans,
     reduce_dim,
 )
-from src.models.question1.datasets_loading import (
+from src.models.oscar_ratings.datasets_loading import (
     load_oscar_winners_nominees_all_categories,
     load_oscar_winners_nominees_best_pict,
     load_oscar_movies_all_categories,
     load_other_movies,
 )
-from src.models.question1.box_office_hit import get_top_box_office_movies
-from src.models.question1.networks import (
+from src.models.oscar_ratings.box_office_hit import get_top_box_office_movies
+from src.models.oscar_ratings.networks import (
     get_causal_effect_for_new_cat,
     get_causal_effect_for_base_cat,
 )

@@ -1,4 +1,4 @@
-from src.models.question1.datasets_loading import (
+from src.models.oscar_ratings.datasets_loading import (
     load_oscar_winners_nominees_all_categories,
     load_oscar_movies_all_categories,
 )
@@ -27,6 +27,16 @@ def print_reg_ratings_release_year():
     model = sm.OLS.from_formula("averageRating ~ release", data=oscar_winner_nominee_df)
     results = model.fit()
     print(results.summary())
+
+
+def print_pearson_corr_ratings_numVotes():
+    oscar_winner_nominee_df = pd.concat(load_oscar_winners_nominees_all_categories())
+
+    # Compute pearson correlation between number of votes and ratings
+    corr = oscar_winner_nominee_df["numVotes"].corr(
+        oscar_winner_nominee_df["averageRating"], method="pearson"
+    )
+    print("Pearson correlation between numVotes and averageRating: ", corr)
 
 
 def print_spearman_corr_ratings_numVotes():

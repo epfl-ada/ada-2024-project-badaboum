@@ -1,4 +1,4 @@
-from src.models.question1.datasets_loading import (
+from src.models.oscar_ratings.datasets_loading import (
     load_oscar_movies_all_categories,
     load_oscar_movies_new_categories,
 )
