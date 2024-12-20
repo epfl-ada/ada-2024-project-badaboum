@@ -6,6 +6,10 @@ from ..utils.data_parsing import parse_str_to_list
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.utils import resample
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, roc_auc_score, roc_curve
+from sklearn.preprocessing import StandardScaler
 
 
 def load_data():
@@ -162,19 +166,19 @@ def filter_high_vif(X: pd.DataFrame, threshold=5.0):
     return X
 
 
-def balance_dataset(data, target_column="nominated"):
+def balance_dataset(data: pd.DataFrame, target: str):
     """
     Balance the dataset by oversampling the minority class.
 
     Args:
         data (pd.DataFrame): The dataset to balance.
-        target_column (str): The column to balance on.
+        target (str): The column to balance on.
 
     Returns:
         pd.DataFrame: Balanced dataset.
     """
-    majority = data[data[target_column] == False]
-    minority = data[data[target_column] == True]
+    majority = data[data[target] == False]
+    minority = data[data[target] == True]
 
     # Oversample the minority class
     minority_upsampled = resample(
@@ -187,18 +191,18 @@ def balance_dataset(data, target_column="nominated"):
     return balanced_data
 
 
-def ols_categorical(data: pd.DataFrame, feature: str):
+def ols_categorical(data: pd.DataFrame, feature: str, target="nominated"):
     """
     Perform OLS regression on a balanced dataset and visualize significant predictors.
+    Filter out high VIF features.
 
     Args:
         data (pd.DataFrame): Input dataset.
-        feature (str): The feature to analyze (e.g., 'IMDB_genres').
-        top_n (int): Number of top predictors to visualize if significant.
+        feature (str): The categorical feature to analyze (e.g., 'IMDB_genres').
+        target (str): The target column for prediction.
     """
     # Balance the dataset
-    balanced_data = balance_dataset(data)
-
+    balanced_data = balance_dataset(data, target)
     # One hot encode genres
     X = balanced_data[feature].explode()
     X = pd.get_dummies(X).groupby(level=0).sum()
@@ -219,19 +223,24 @@ def ols_categorical(data: pd.DataFrame, feature: str):
     print(ols_summary)
 
 
-def ols_continuous(data: pd.DataFrame, feature: str):
+def ols_continuous(data: pd.DataFrame, feature: str, target="nominated"):
     """
     Perform OLS regression on runtime with a balanced dataset.
+
+    Args:
+        data (pd.DataFrame): Input dataset.
+        feature (str): The continuous feature to analyze (e.g., 'runtime').
+        target (str): The target column for prediction
     """
     # Balance the dataset
-    balanced_data = balance_dataset(data)
+    balanced_data = balance_dataset(data, target)
 
     # Drop rows with missing runtime
     balanced_data = balanced_data.dropna(subset=["runtime"])
 
     # Define the predictor (X) and target (y)
-    X_runtime = balanced_data[["runtime"]]
-    y_nominated = balanced_data["nominated"]
+    X_runtime = balanced_data[feature]
+    y_nominated = balanced_data[target]
 
     # Add a constant for intercept
     X_runtime = sm.add_constant(X_runtime)
@@ -250,6 +259,9 @@ def plot_runtime_distribution(
 ):
     """
     Plot the distribution of runtime for nominees and non-nominees.
+
+    Args:
+        data (pd.DataFrame): The dataset.
     """
     # Split the data into nominees and non-nominees
     nominees = data[data["nominated"]]
@@ -272,22 +284,23 @@ def plot_runtime_distribution(
     plt.show()
 
 
-def gls_categorical(data: pd.DataFrame, feature: str):
+def gls_categorical(data: pd.DataFrame, feature: str, target="nominated"):
     """
     Perform GLS regression on a balanced dataset and visualize significant predictors.
+    Filter out high VIF features.
 
     Args:
         data (pd.DataFrame): Input dataset.
-        feature (str): The feature to analyze (e.g., 'IMDB_genres').
-        top_n (int): Number of top predictors to visualize if significant.
+        feature (str): The categorical feature to analyze (e.g., 'IMDB_genres').
+        target (str): The target column for prediction.
     """
     # Balance the dataset
-    balanced_data = balance_dataset(data)
+    balanced_data = balance_dataset(data, target)
 
     # One hot encode genres
     X = balanced_data[feature].explode()
     X = pd.get_dummies(X).groupby(level=0).sum()
-    y = balanced_data["nominated"]
+    y = balanced_data[target]
 
     X = filter_high_vif(X)
 
@@ -313,7 +326,7 @@ def gls_categorical(data: pd.DataFrame, feature: str):
     sorted_params = significant_params.sort_values(ascending=True)
 
     # Visualize coefficients
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 8))
     sorted_params.plot(kind="barh")
     plt.title(f"GLS Model Coefficients: Significant Predictors")
     plt.xlabel("Coefficient")
@@ -323,19 +336,24 @@ def gls_categorical(data: pd.DataFrame, feature: str):
     plt.show()
 
 
-def gls_continuous(data: pd.DataFrame, feature: str):
+def gls_continuous(data: pd.DataFrame, feature: str, target="nominated"):
     """
     Perform GLS regression on runtime with a balanced dataset.
+
+    Args:
+        data (pd.DataFrame): Input dataset.
+        feature (str): The continuous feature to analyze (e.g., 'runtime').
+        target (str): The target column for prediction
     """
     # Balance the dataset
-    balanced_data = balance_dataset(data)
+    balanced_data = balance_dataset(data, target)
 
     # Drop rows with missing runtime
     balanced_data = balanced_data.dropna(subset=["runtime"])
 
     # Define the predictor (X) and target (y)
-    X_runtime = balanced_data[[feature]]
-    y_nominated = balanced_data["nominated"]
+    X_runtime = balanced_data[feature]
+    y_nominated = balanced_data[target]
 
     # Add a constant for intercept
     X_runtime = sm.add_constant(X_runtime)
@@ -347,3 +365,81 @@ def gls_continuous(data: pd.DataFrame, feature: str):
     gls_summary_runtime = gls_model_runtime.summary()
 
     print(gls_summary_runtime)
+
+
+def preprocess_data(data, feature_columns, target="nominated"):
+    """
+    Preprocess the data for training a predictive model.
+
+    Args:
+        data (pd.DataFrame): The dataset.
+        feature_columns (list): List of feature columns to use.
+        target (str): The target column for prediction.
+
+    Returns:
+        X (pd.DataFrame): Processed feature matrix.
+        y (pd.Series): Target variable.
+    """
+    # Balance the dataset
+    balanced_data = balance_dataset(data, target=target)
+
+    # One-hot encode categorical features
+    X = pd.get_dummies(balanced_data[feature_columns], drop_first=True)
+    y = balanced_data[target]
+
+    return X, y
+
+
+def logistic_regression(data, feature_columns, target="nominated"):
+    """
+    Train a logistic regression model to predict the target variable.
+
+    Args:
+        data (pd.DataFrame): The dataset.
+        feature_columns (list): List of feature columns to use.
+        target (str): The target column for prediction.
+    """
+    # Preprocess data
+    X, y = preprocess_data(data, feature_columns, target)
+
+    # Split into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+    # Scale continuous features
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+
+    # Train logistic regression model
+    model = LogisticRegression(max_iter=1000, random_state=42)
+    model.fit(X_train, y_train)
+
+    # Evaluate the model
+    y_pred = model.predict(X_test)
+    y_proba = model.predict_proba(X_test)[:, 1]
+
+    print("Classification Report:")
+    print(classification_report(y_test, y_pred))
+
+    print(f"ROC-AUC Score: {roc_auc_score(y_test, y_proba)}")
+
+    # Plot ROC curve
+    fpr, tpr, thresholds = roc_curve(y_test, y_proba)
+    plt.figure(figsize=(8, 6))
+    plt.plot(
+        fpr,
+        tpr,
+        label="Logistic Regression (AUC = {:.2f})".format(
+            roc_auc_score(y_test, y_proba)
+        ),
+    )
+    plt.plot([0, 1], [0, 1], "k--", label="Random Guess")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("ROC Curve")
+    plt.legend()
+    plt.show()
+
+    return model
